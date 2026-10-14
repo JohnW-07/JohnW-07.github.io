@@ -1,0 +1,436 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   DESIGN TOKENS — "Lab bench / Darkroom"
+   ----------------------------------------------------------------------------
+   Two compartments, one token set.
+
+   `:root`                        → LAB. Baryta-paper white, printing-ink black.
+                                    The professional / research side of the site.
+   `[data-theme="darkroom"]`      → DARKROOM. Lights off, amber safelight only.
+                                    The photography side of the site.
+
+   Palette provenance (every colour references something physical):
+     paper      — fibre-based baryta photographic paper, warm not blue-white
+     ink        — printing ink, cool near-black, never #000
+     safelight  — the amber darkroom safelight, the one lamp that does not fog
+                  the paper. Used for the single load-bearing accent.
+     cyanotype  — Prussian blue of a cyanotype print. Used for data and
+                  diagram strokes so measurements read cool against warm paper.
+
+   Semantics are stable across both themes: `ink` is always what you write with,
+   `paper` is always what you write on. Utilities therefore work unchanged in
+   either compartment (`bg-paper text-ink` is correct in both).
+   ========================================================================== */
+
+/* The lab palette is both the document default and an addressable compartment.
+   `[data-theme="lab"]` has to be a real selector, not just the absence of the
+   darkroom one, or a lab band nested inside a darkroom page (the door back out
+   of /photography) inherits the darkroom values and never lights up. */
+:root,
+[data-theme="lab"] {
+  /* --- surfaces (lab) ---------------------------------------------------- */
+  --paper: #f4f1ea; /* baryta base */
+  --paper-2: #eae5d9; /* raised card / inset panel */
+  --paper-3: #ded7c7; /* sunken well, table zebra */
+  --line: #c9c1ae; /* hairline rule */
+  --line-strong: #a79d86; /* emphasised rule */
+
+  /* --- text (lab) -------------------------------------------------------- */
+  --ink: #15171a; /* body + display */
+  --ink-2: #4d535b; /* secondary prose */
+  /* Mono labels, captions, metadata. This token carries most of the small
+     text on the site, so it is pinned to WCAG AA: 5.73:1 on --paper, 5.14:1 on
+     --paper-2, 4.51:1 on --paper-3. The original #837e70 read better as a
+     faint annotation and failed AA on every surface at 3.6:1. */
+  --ink-3: #625e54;
+
+  /* --- accents ----------------------------------------------------------- */
+  /* Burnt amber. Darkened from #bc4718, which measured 4.59:1 on --paper but
+     only 4.12:1 on --paper-2 — and --paper-2 is the substrate under every
+     figure plate, so every mono annotation inside a drawing sat under AA. It
+     also carries the `ALERT` chip in the cherry-canary figure, where paper-
+     coloured text sits on a 90% fill of this colour: 4.01:1 before, 4.73:1
+     now. Measured, not eyeballed: scripts/contrast, or the harness note in
+     docs/design-overhaul-status.md. */
+  --safelight: #a83e12; /* 5.01:1 on --paper-2, 5.58:1 on --paper */
+  --safelight-soft: #e08544;
+  --cyanotype: #1c4c6b;
+  --cyanotype-soft: #5b8fae;
+
+  /* --- typography -------------------------------------------------------- */
+  --font-display-family: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
+  --font-sans-family: var(--font-instrument-sans), ui-sans-serif, sans-serif;
+  --font-mono-family: var(--font-plex-mono), ui-monospace, monospace;
+
+  /* --- rhythm ------------------------------------------------------------ */
+  --page-gutter: 1.5rem;
+  --rule-width: 1px;
+}
+
+/* Darkroom: lights off. Same semantics, inverted physics. */
+[data-theme="darkroom"] {
+  --paper: #0b0a09; /* unexposed frame */
+  --paper-2: #141210;
+  --paper-3: #1e1b17;
+  --line: #302b24;
+  --line-strong: #4a4238;
+
+  --ink: #ece5d7; /* emulsion highlight */
+  --ink-2: #a8a091;
+  /* 5.24:1 on --paper, 4.95:1 on --paper-2, 4.54:1 on --paper-3. */
+  --ink-3: #898374;
+
+  --safelight: #f08a3c; /* the lamp itself */
+  --safelight-soft: #ffb367;
+  --cyanotype: #79aecc;
+  --cyanotype-soft: #4b7c98;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-paper-3: var(--paper-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+
+  --color-safelight: var(--safelight);
+  --color-safelight-soft: var(--safelight-soft);
+  --color-cyanotype: var(--cyanotype);
+  --color-cyanotype-soft: var(--cyanotype-soft);
+
+  --font-display: var(--font-display-family);
+  --font-sans: var(--font-sans-family);
+  --font-mono: var(--font-mono-family);
+
+  /* Sharp by default. This is an instrument, not a bubble. */
+  --radius-frame: 1px;
+
+  /* Vertical rhythm. Fluid between the 360px and 1440px design widths, then
+     pinned. These used to be flat rems that rode the vw-based root font-size;
+     that mechanism is gone (see the `html` rule below), so the fluidity is
+     declared here where it can be read. */
+  --spacing-gutter: clamp(1.25rem, 1.1rem + 0.37vw, 1.5rem);
+  --spacing-page: clamp(2.5rem, 1.667rem + 3.7vw, 5rem);
+  --spacing-section: clamp(3.5rem, 2.167rem + 5.93vw, 7.5rem);
+}
+
+@layer base {
+  /* The root font-size is a fixed 16px and stays there.
+     ------------------------------------------------------------------------
+     It used to be `vw`-based below 1920px, one step per grid breakpoint. That
+     only hit the intended size at exactly 1920 / 1440 / 1024px; at every width
+     in between it scaled everything *down*. Measured on the shipped build:
+
+       viewport   body    mono labels
+       1440px     16.0px  11.0px   <- the size the site was designed at
+       1280px     14.2px   9.8px
+       1150px     12.8px   8.8px
+       1600px     13.3px   9.2px
+
+     So on ordinary laptop widths the whole site rendered 11–20% smaller than
+     designed and the mono labels fell to ~9px. That is the single largest
+     cause of the "too much small text" problem, and no amount of per-component
+     tuning could fix it while the root kept moving underneath.
+
+     A vw root font-size also ignores the reader's browser font-size setting,
+     which fails WCAG 1.4.4 (Resize Text). Fixing the root fixes that too.
+
+     Fluidity now lives on the individual type steps and spacing tokens as
+     `clamp()`, which scales continuously instead of in breakpoint jumps and
+     cannot fall below a legible floor. Above 1920px the AdaptiveGrid component
+     still scales up; its `else` branch clears the inline size and lands here.
+     See obsidian/meta/decisions-log.md ADR-0022. */
+  html {
+    font-size: 16px;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans-family);
+    /* Optical: Instrument Sans sits slightly loose by default. */
+    letter-spacing: -0.006em;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Display face defaults.
+     ------------------------------------------------------------------------
+     No blanket negative tracking. The previous rule set -0.022em here and then
+     each large step added more on top (-0.03em at display-xl), so headlines
+     were tracked in twice on a face that was already narrow. That is what read
+     as "compressed together".
+
+     Serifs need *more* room than a sans at the same size, not less; the
+     negative-tracking-at-size convention comes from sans display faces. With a
+     variable serif the correct mechanism is the optical-size axis, set per
+     step below, which changes the letterforms themselves rather than shoving
+     unchanged glyphs closer together.
+
+     SOFT 20 takes the mechanical edge off the terminals; WONK 0 keeps the
+     eccentric alternates switched off so the face stays in the instrument
+     register. */
+  .font-display {
+    font-weight: 400;
+    font-variation-settings:
+      "SOFT" 20,
+      "WONK" 0;
+    letter-spacing: 0;
+  }
+
+  ::selection {
+    background: var(--safelight);
+    color: var(--paper);
+  }
+
+  /* Keyboard focus must survive both compartments. */
+  :focus-visible {
+    outline: 2px solid var(--safelight);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* ---- Film grain -------------------------------------------------------
+     A fixed, non-scrolling grain plate. Sells "photographic print" on the lab
+     side and "pushed film" in the darkroom, and stops large flat fields from
+     reading as flat vector. No animation: the hard rules forbid CSS keyframes,
+     and static grain is the physically honest version anyway. */
+  .grain::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.32;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+  }
+
+  [data-theme="darkroom"] .grain::after {
+    opacity: 0.5;
+    mix-blend-mode: screen;
+  }
+
+  /* ---- Hairline field ---------------------------------------------------
+     The engineering-paper substrate. Column rules at the layout gutter,
+     drawn once behind content rather than per-element. */
+  .field-rules {
+    background-image: linear-gradient(
+      to right,
+      var(--line) 0,
+      var(--line) var(--rule-width),
+      transparent var(--rule-width)
+    );
+    background-size: 8.3333% 100%;
+  }
+
+  /* ---- Scroll fade ------------------------------------------------------
+     Softens the right edge of a horizontally scrollable figure so the drawing
+     appears to run under the plate border rather than being severed by it.
+     A hard cut mid-glyph at the screen edge reads as a rendering fault; a fade
+     reads as more drawing. Masked, not painted, so it works over the ruled
+     substrate and in either theme. Only below `sm`, where the plates scroll. */
+  .scroll-fade {
+    @media (width < 40rem) {
+      mask-image: linear-gradient(
+        to right,
+        #000 0,
+        #000 calc(100% - 2.5rem),
+        transparent 100%
+      );
+    }
+  }
+
+  /* ---- Safelight bloom --------------------------------------------------
+     A soft off-centre glow, used only in the darkroom compartment where a
+     single warm lamp is the entire lighting model. */
+  .safelight-bloom {
+    background-image: radial-gradient(
+      62rem 40rem at 78% 8%,
+      color-mix(in oklab, var(--safelight) 16%, transparent) 0%,
+      transparent 68%
+    );
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   TYPE SCALE
+   ----------------------------------------------------------------------------
+   Declared with `@utility` rather than `@layer utilities` so responsive
+   variants work (`lg:text-display`).
+
+   Every step is a `clamp(min, preferred, max)` interpolating between the two
+   design widths — 360px (phone) and 1440px (laptop) — and pinning outside
+   them. This replaces the previous approach of a flat rem size riding a
+   vw-based root font-size, which jumped at breakpoints and shrank text in
+   between. `clamp()` scales continuously and, critically, has a floor.
+
+   Each display step also sets `opsz` to its own pixel size. That is the whole
+   point of the variable display face: the letterforms are recut per size
+   rather than being one cut scaled and then tracked in.
+
+   The scale now has a genuine middle register (`text-sub`, 28px). Before, the
+   home page had nothing between 21px and 38px, so every label, spec and
+   description sat at 11–16px and nothing guided the eye down the page.
+   -------------------------------------------------------------------------- */
+
+/* 52px → 144px */
+@utility text-display-xl {
+  text-wrap: balance;
+  font-size: clamp(3.25rem, 1.333rem + 8.518vw, 9rem);
+  line-height: 0.92;
+  font-variation-settings:
+    "opsz" 144,
+    "SOFT" 20,
+    "WONK" 0;
+  @media (min-width: 1024px) {
+    line-height: 0.88;
+  }
+}
+
+/* 40px → 64px */
+@utility text-display {
+  text-wrap: balance;
+  font-size: clamp(2.5rem, 2rem + 2.222vw, 4rem);
+  line-height: 1;
+  font-variation-settings:
+    "opsz" 64,
+    "SOFT" 20,
+    "WONK" 0;
+  @media (min-width: 1024px) {
+    line-height: 0.96;
+  }
+}
+
+/* 30px → 40px */
+@utility text-display-sm {
+  text-wrap: balance;
+  font-size: clamp(1.875rem, 1.667rem + 0.926vw, 2.5rem);
+  line-height: 1.08;
+  font-variation-settings:
+    "opsz" 40,
+    "SOFT" 20,
+    "WONK" 0;
+}
+
+/* 22px → 28px. The missing rung: section subheads, project titles in the
+   index, anything that needs to outrank prose without shouting. */
+@utility text-sub {
+  text-wrap: balance;
+  font-size: clamp(1.375rem, 1.25rem + 0.556vw, 1.75rem);
+  line-height: 1.2;
+  font-variation-settings:
+    "opsz" 28,
+    "SOFT" 20,
+    "WONK" 0;
+}
+
+/* Gauge numerals. 34px → 44px */
+@utility text-readout {
+  font-size: clamp(2.125rem, 1.917rem + 0.926vw, 2.75rem);
+  line-height: 0.95;
+  font-variation-settings:
+    "opsz" 44,
+    "SOFT" 20,
+    "WONK" 0;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Opening paragraph of a page or section. 19px → 24px */
+@utility text-lede {
+  font-size: clamp(1.1875rem, 1.083rem + 0.463vw, 1.5rem);
+  line-height: 1.5;
+  letter-spacing: -0.004em;
+}
+
+/* 16px → 17px. Was 15px on phones, which is below the comfortable floor for
+   sustained reading. */
+@utility text-body {
+  font-size: clamp(1rem, 0.979rem + 0.093vw, 1.0625rem);
+  line-height: 1.62;
+}
+
+/* Captions, notes, table cells. Was 13px. */
+@utility text-fine {
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+/* Mono label: the instrument-panel voice. Always uppercase, never used for
+   prose.
+   Was 11px at 0.14em. Tracking that wide at that size is what made these hard
+   to read — the letters stop grouping into words. 12.5px at 0.10em keeps the
+   tracked-out instrument character while staying legible, and clears the
+   pre-existing WCAG AA contrast work on --ink-3 by being larger, not darker. */
+@utility label-mono {
+  font-family: var(--font-mono-family);
+  font-size: 0.78125rem;
+  line-height: 1.1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Display steps balance their own line breaks.
+   ---------------------------------------------------------------------------
+   `text-wrap: balance` evens the line lengths of a short block instead of
+   filling each line greedily, which is what strands a single word on the last
+   line. The project nav was setting "Live telemetry for a Formula SAE / car"
+   with "car" alone, right-aligned, as the most visible orphan on the site.
+   Browsers cap balancing at a handful of lines, which is exactly the range
+   these steps are used for; body copy is deliberately left greedy. */
+
+/* Line-mask allowance for `TextEngine`.
+   ---------------------------------------------------------------------------
+   `TextEngine` with `overflow` puts `overflow: hidden` on a per-line wrapper so
+   each line can slide up out of its own mask. That mask is exactly one line-box
+   tall — and the display steps run leading below 1.0, so the glyphs are taller
+   than the box. The result is that every descender on a display heading is
+   sliced flat: `/photography`'s "Photography" lost the tails of its p, g, p and
+   y, and "…measures a robot policy" lost the y.
+
+   Padding the mask down by the overhang reveals the descenders; the matching
+   negative margin gives the space back, so line spacing and the rule below are
+   exactly where they were. Pass it through `wrapLineClassName`, which is the
+   prop that lands on the clipping element:
+
+     <TextEngine overflow wrapLineClassName="line-mask" … />
+
+   This is separate from `descender-room` below and they are usually both
+   needed: this one stops the glyph being cut, that one stops a rule sitting on
+   top of the glyph now that it renders. */
+@utility line-mask {
+  padding-bottom: 0.3em;
+  margin-bottom: -0.3em;
+}
+
+/* Descender allowance.
+   ---------------------------------------------------------------------------
+   The display steps run leading below 1.0, which is correct for stacked
+   headline lines but means the glyphs are taller than their own line-box. At
+   `text-display-xl` the rendered text is ~1.37em tall against a 0.88em box, so
+   descenders hang roughly 0.3em below the element. A rule or border sitting at
+   the box edge therefore slices straight through them — which is exactly what
+   happened to the `/photography` masthead, where "Photography" carries four
+   descenders and lost the tail of the `y` entirely.
+
+   Apply to a display heading whose container draws a rule beneath it. `em`
+   resolves against the heading's own font-size, so the allowance tracks the
+   fluid type scale automatically. */
+@utility descender-room {
+  padding-bottom: 0.3em;
+}
+
+@utility rule-t {
+  border-top: var(--rule-width) solid var(--line);
+}
+@utility rule-b {
+  border-bottom: var(--rule-width) solid var(--line);
+}
+@utility rule-l {
+  border-left: var(--rule-width) solid var(--line);
+}
