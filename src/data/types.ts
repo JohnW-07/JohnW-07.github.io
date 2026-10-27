@@ -87,3 +87,10 @@ export interface Frame {
   /** Shot metadata, printed in the margin like a film rebate. */
   readonly exif: string | Placeholder;
 }
+
+/** A blog entry. `date` is ISO `YYYY-MM-DD`; the list renders newest first. */
+export interface BlogPost {
+  readonly title: string;
+  readonly date: string;
+  readonly summary: string;
+}

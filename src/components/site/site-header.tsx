@@ -8,6 +8,7 @@ import { MonoLabel } from "@/components/ui/mono-label";
 const nav = [
   { label: "Work", href: "/#work" },
   { label: "Photography", href: "/photography" },
+  { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/#contact" },
 ] as const;
 
@@ -33,9 +34,9 @@ const isActive = (pathname: string, href: string) => {
 /**
  * Top rule.
  *
- * Three links, no menu button. Every label is short enough to survive a 360px
- * viewport in mono, so the site never needs a hamburger, and a hamburger that
- * hides three links is a control that exists to be a control.
+ * Four links, no menu button. On a narrow phone the links wrap onto a second
+ * row under the name rather than hiding behind a hamburger, because a hamburger
+ * that hides four links is a control that exists to be a control.
  *
  * Hover and active states change instantly rather than easing. The house rules
  * forbid CSS transitions, and an instrument that snaps between states is more
@@ -46,7 +47,7 @@ export const SiteHeader = () => {
 
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
-      <div className="pointer-events-auto flex items-center justify-between gap-4 border-b border-line bg-paper/85 px-gutter py-3 backdrop-blur-md lg:px-page">
+      <div className="pointer-events-auto flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-line bg-paper/85 px-gutter py-3 backdrop-blur-md lg:px-page">
         <Link href="/" className="group flex items-baseline gap-3" aria-label="John Wu, home">
           <span className="font-display text-xl leading-none text-ink">
             John Wu
