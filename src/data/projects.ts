@@ -10,6 +10,7 @@ import type { Project } from "@/data/types";
 export const projects: readonly Project[] = [
   {
     slug: "vla-benchmarking",
+    start: "2026-05",
     index: "01",
     title: "Standardizing how a lab measures a robot policy",
     org: "Stanford University, NeuroAI Lab",
@@ -48,6 +49,7 @@ export const projects: readonly Project[] = [
   },
   {
     slug: "tackle-vision",
+    start: "2026-02",
     index: "02",
     title: "Scoring a hit from game film",
     org: "Children's National Hospital",
@@ -81,6 +83,7 @@ export const projects: readonly Project[] = [
   },
   {
     slug: "terps-dashboard",
+    start: "2025-09",
     index: "03",
     title: "Live telemetry for a Formula SAE car",
     org: "Terps Racing EV",
@@ -106,6 +109,7 @@ export const projects: readonly Project[] = [
   },
   {
     slug: "armtopoint",
+    start: "2025-09",
     index: "04",
     title: "One RGB camera, a position in three dimensions",
     org: "Personal research",
@@ -126,6 +130,7 @@ export const projects: readonly Project[] = [
   },
   {
     slug: "cherry-canary",
+    start: "2026-04",
     index: "05",
     title: "Catching respiratory distress before SpO2 drops",
     org: "Bitcamp 2026",

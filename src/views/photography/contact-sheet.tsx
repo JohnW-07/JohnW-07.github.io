@@ -2,7 +2,7 @@ import { AssetFrame } from "@/components/ui/asset-frame";
 import { MonoLabel } from "@/components/ui/mono-label";
 import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
-import { frames, sheet } from "@/data/photography";
+import { sheetFrames as frames, sheet } from "@/data/photography";
 import { PLACEHOLDER, type Frame } from "@/data/types";
 
 /**

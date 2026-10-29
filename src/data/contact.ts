@@ -19,7 +19,6 @@ export const contact = {
    */
   resume: {
     href: "/john-wu-resume.pdf",
-    available: false,
-    note: "Add public/john-wu-resume.pdf, then set available: true",
+    available: true,
   },
 } as const;

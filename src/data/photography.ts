@@ -1,4 +1,4 @@
-import { PLACEHOLDER, type Frame } from "@/data/types";
+import { PLACEHOLDER, type Frame, type PhotoFrame, type PhotoSet } from "@/data/types";
 
 /**
  * Photography compartment.
@@ -70,10 +70,42 @@ const emptyFrame = (n: number): Frame => ({
 });
 
 /** Twelve frames, the length of a 120 roll on 6x6. All empty until John loads them. */
-export const frames: readonly Frame[] = Array.from({ length: 12 }, (_, i) =>
+export const sheetFrames: readonly Frame[] = Array.from({ length: 12 }, (_, i) =>
   emptyFrame(i + 1),
 );
 
-export const loadedCount = frames.filter(
+export const loadedCount = sheetFrames.filter(
   (frame) => frame.asset.kind === "image",
 ).length;
+
+/**
+ * Exported frames (long edge 2000px, sRGB). Keyed by original file name,
+ * lowercased. Months come from EXIF; P8* files carry none, so August 2025
+ * is read from the camera's file naming (P = Olympus, 8 = August).
+ */
+export const frames: Readonly<Record<string, PhotoFrame>> = {
+  p8223146: { src: "/assets/photography/p8223146.jpg", alt: "Photograph P8223146, August 2025", name: "P8223146", w: 2000, h: 1500 },
+  p8223358: { src: "/assets/photography/p8223358.jpg", alt: "Photograph P8223358, August 2025", name: "P8223358", w: 2000, h: 1500 },
+  p6189270: { src: "/assets/photography/p6189270.jpg", alt: "Photograph P6189270, June 2025", name: "P6189270", w: 2000, h: 1500 },
+  p6147377: { src: "/assets/photography/p6147377.jpg", alt: "Photograph P6147377, June 2025", name: "P6147377", w: 2000, h: 1500 },
+  img_3628: { src: "/assets/photography/img_3628.jpg", alt: "Photograph IMG_3628, June 2023", name: "IMG_3628", w: 2000, h: 1500 },
+  img_1990: { src: "/assets/photography/img_1990.jpg", alt: "Photograph IMG_1990, March 2023", name: "IMG_1990", w: 1215, h: 2000 },
+};
+
+/** Grouped by capture date until John names the sets and places. */
+export const photoSets: readonly PhotoSet[] = [
+  {
+    n: "01",
+    title: "selected frames",
+    meta: "Jun – Aug 2025",
+    highlights: ["p8223146", "p6189270", "p8223358"],
+    frames: ["p8223146", "p8223358", "p6189270", "p6147377"],
+  },
+  {
+    n: "02",
+    title: "selected frames",
+    meta: "Mar – Jun 2023",
+    highlights: ["img_3628", "img_1990"],
+    frames: ["img_3628", "img_1990"],
+  },
+];

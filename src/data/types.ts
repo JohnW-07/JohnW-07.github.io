@@ -56,6 +56,8 @@ export interface Project {
   readonly links: readonly ExternalLink[];
   /** Whether a bespoke case-study page exists at /work/[slug]. */
   readonly hasPage: boolean;
+  /** ISO month the work started, e.g. "2025-09". Places it on the timeline. */
+  readonly start: string;
 }
 
 export interface ExperienceEntry {
@@ -86,6 +88,25 @@ export interface Frame {
   readonly caption: string | Placeholder;
   /** Shot metadata, printed in the margin like a film rebate. */
   readonly exif: string | Placeholder;
+}
+
+/** An exported photograph under `public/`. `w`/`h` are the export's pixel size. */
+export interface PhotoFrame {
+  readonly src: string;
+  readonly alt: string;
+  /** Original camera file name, shown as the caption. */
+  readonly name: string;
+  readonly w: number;
+  readonly h: number;
+}
+
+/** A group of frames on /photography: highlights first, then every frame. */
+export interface PhotoSet {
+  readonly n: string;
+  readonly title: string;
+  readonly meta: string;
+  readonly highlights: readonly string[];
+  readonly frames: readonly string[];
 }
 
 /** A blog entry. `date` is ISO `YYYY-MM-DD`; the list renders newest first. */

@@ -1,5 +1,5 @@
 import { CompartmentDoor } from "@/components/site/compartment-door";
-import { doors, frames, loadedCount, sheet } from "@/data/photography";
+import { doors, sheetFrames as frames, loadedCount, sheet } from "@/data/photography";
 import { projects } from "@/data/projects";
 import { ContactSheet } from "@/views/photography/contact-sheet";
 import { SheetMasthead } from "@/views/photography/sheet-masthead";
