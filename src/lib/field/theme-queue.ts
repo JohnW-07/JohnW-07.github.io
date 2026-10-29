@@ -1,6 +1,9 @@
 import type { Zone } from "./page-id";
 
-type Theme = 0 | 1;
+export type Theme = 0 | 1;
+
+/** Where each zone starts: the site light, photography dark (M:329). The layout's boot script mirrors this. */
+export const ZONE_THEMES: Record<Zone, Theme> = { site: 0, photo: 1 };
 
 /**
  * Theme target queue (M:327–335, 469, 520): a running wipe always finishes;

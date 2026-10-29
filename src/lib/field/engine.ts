@@ -4,7 +4,7 @@ import { subscribeToTicker } from "@/lib/animation/ticker";
 
 import { buildAtlas, type GlyphSink } from "./atlas";
 import { drawBand, type BandGrid } from "./band";
-import { CORE, FZ, PAGE_MS, PHOTOS, STAGES, THEMES, TRAIL, VEIL } from "./constants";
+import { CORE, FZ, PAGE_MS, PHOTOS, SCAT, STAGES, THEME_MS, THEMES, TRAIL, VEIL } from "./constants";
 import { makeSignedDist, sampleCurve, type Point } from "./curve";
 import { create2dSink } from "./draw2d";
 import { makeFront } from "./front";
@@ -12,14 +12,18 @@ import { createGlBatch } from "./gl-batch";
 import { createHero, type FieldLayer } from "./hero";
 import { buildKnockout, type KnockoutGrid } from "./knockout";
 import { blur, toLum } from "./luminance";
-import { paint, prep, type CellGrid, type Item } from "./masks";
-import { clamp, smoothstep } from "./math";
-import { isFieldPage, type PageId } from "./page-id";
+import { paint, prep, tint, type CellGrid, type Item } from "./masks";
+import { clamp, hash, smoothstep } from "./math";
+import { isFieldPage, zoneOf, type PageId } from "./page-id";
+import { createThemeQueue, ZONE_THEMES, type Theme } from "./theme-queue";
 
 export type Engine = {
   setPage: (id: PageId, layer: HTMLElement) => void;
   wipe: (ghost: HTMLElement | null, layer: HTMLElement, id: PageId) => Promise<void>;
-  toggleTheme: () => void;
+  /** Flips the current zone's theme; returns the theme it now wants. */
+  toggleTheme: () => Theme;
+  /** The current zone's wanted theme (the toggle label). */
+  readonly want: Theme;
   resize: () => void;
   destroy: () => void;
   /** Finishes a running wipe at once (history moves, hidden tab). */
@@ -41,7 +45,11 @@ type Scene = {
   key: string;
   sink: GlyphSink;
   hero: ReturnType<typeof createHero>;
+  /** Per-cell theme: TH for glyphs (scattered), BT for paper and text, S_* where the running theme wave started. */
   TH: Float32Array;
+  BT: Float32Array;
+  S_TH: Float32Array;
+  S_BT: Float32Array;
   grid: KnockoutGrid;
   ko: Record<"home" | "blog", string>;
   kn: Map<PageId, Float32Array>;
@@ -54,6 +62,9 @@ type Scene = {
 
 /** A running page wipe: the old page's leaves fade ahead of the band core, the new page's behind it. */
 type Wave = { t0: number; fromId: PageId; from: Item[]; to: Item[]; knFrom: Float32Array | null; resolve: () => void };
+
+/** A running theme wave toward `queue.to`. */
+type ThemeWave = { ts: number; dur: number };
 
 /** Curve opacity per page: hidden on field pages and the all-projects index. */
 const lineVis = (id: PageId) => (isFieldPage(id) || id === "all" ? 0 : 1);
@@ -111,6 +122,7 @@ const loadPhotos = async () => {
   return all.filter((p): p is Photo => p !== null);
 };
 
+const viewport = () => new DOMRect(0, 0, innerWidth, innerHeight);
 const viewKey = () => `${innerWidth}x${innerHeight}@${Math.min(MAX_DPR, devicePixelRatio || 1)}`;
 
 /**
@@ -124,18 +136,20 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
   if (!fld) throw new Error("createEngine: canvas.fld not found");
   const gl = fld.getContext("webgl2", GL_OPTS);
   const topCv = root.querySelector<HTMLCanvasElement>("canvas.top"), paperCv = root.querySelector<HTMLCanvasElement>("canvas[data-paper]");
-  const curveEl = root.querySelector<SVGSVGElement>("svg[data-curve]");
+  const curveEl = root.querySelector<SVGSVGElement>("svg[data-curve]"), grainEl = root.querySelector<SVGSVGElement>("svg.grain");
   const family = getComputedStyle(document.documentElement).getPropertyValue("--font-paper-mono").trim() || "monospace";
 
   let photos: Photo[] | null = null, scene: Scene | null = null, page: { id: PageId; layer: HTMLElement } | null = null;
-  let unsub: (() => void) | null = null, th = 0, shown = -1, dead = false, wave: Wave | null = null, lastWipeMs = 0;
+  let unsub: (() => void) | null = null, th: Theme = 0, shown = -1, dead = false, wave: Wave | null = null, lastWipeMs = 0;
+  const queue = createThemeQueue(ZONE_THEMES);
+  let tw: ThemeWave | null = null, themeItems: Item[] | null = null;
 
   const buildScene = (ph: Photo[]): Scene => {
     const S = STAGES[innerWidth <= PHONE_MAX ? "phone" : "desk"], W = S.W, COLS = S.COLS, H = (W * innerHeight) / innerWidth;
     const dpr = Math.min(MAX_DPR, devicePixelRatio || 1), w = (fld.width = Math.round(innerWidth * dpr)), h = (fld.height = Math.round(innerHeight * dpr));
     const cw = w / COLS, ch = cw * ROW_ASPECT, ROWS = Math.ceil(h / ch), N = COLS * ROWS, ux = W / COLS, uy = (ch * H) / h;
     const cells = { cw, ch, aw: Math.ceil(cw) + 2, ah: Math.ceil(ch) + 2 };
-    const T = new Float32Array(N), TH = new Float32Array(N).fill(th);
+    const T = new Float32Array(N), [TH, BT, S_TH, S_BT] = [0, 1, 2, 3].map(() => new Float32Array(N).fill(th));
     for (let r = 0, i = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++, i++) {
       const x = (c + 0.5) * ux, y = (r + 0.5) * uy;
       T[i] = clamp((((W - x) / W) * 0.55 + (y / H) * 0.45 - 0.12) / 0.76);
@@ -149,7 +163,7 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
     const { Q, G, frontAt } = curveField(S.curve, S.below, COLS, ROWS, ux, uy);
     if (topCv) { topCv.width = w; topCv.height = h; }
     return {
-      key: viewKey(), sink, hero, TH, grid: { w, h, dpr, cols: COLS, rows: ROWS, cw, ch }, ko: S.ko, kn: new Map(),
+      key: viewKey(), sink, hero, TH, BT, S_TH, S_BT, grid: { w, h, dpr, cols: COLS, rows: ROWS, cw, ch }, ko: S.ko, kn: new Map(),
       band: { cols: COLS, rows: ROWS, Q, G, T }, css: { cols: COLS, rows: ROWS, cw: cw / dpr, ch: ch / dpr, Q }, frontAt,
       top: (topCv && create2dSink(topCv, atlases, cells, TH)) ?? NO_SINK, paper: paperWash(paperCv, COLS, ROWS, w, h),
     };
@@ -163,16 +177,23 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
     return kn;
   };
 
-  /** The paper wash riding the page front (M:478–482): accent over paper, alpha v, only while a wipe runs. */
+  /**
+   * The paper canvas (M:476–482): opaque paper lerped by BT while the theme moves, plus the accent wash riding the
+   * page front. Idle, it is clear and `html` paints the paper.
+   */
   const washPaper = (s: Scene, pf: number | null) => {
     if (!s.paper) return;
-    const { ctx, bg, img } = s.paper, px = img.data, A0 = THEMES[0].acc, A1 = THEMES[1].acc, { Q, G } = s.band;
+    const { ctx, bg, img } = s.paper, px = img.data, { Q, G } = s.band, opaque = !!tw;
+    const P0 = THEMES[0].paper, P1 = THEMES[1].paper, A0 = THEMES[0].acc, A1 = THEMES[1].acc;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    if (pf === null) return;
+    if (pf === null && !opaque) return;
     for (let i = 0; i < Q.length; i++) {
-      const u = (pf - Q[i]) / G[i], v = VEIL * smoothstep(-FZ, CORE / 2, u) * (1 - smoothstep(CORE / 2, CORE + FZ + TRAIL, u)), t = s.TH[i];
-      for (let k = 0; k < 3; k++) px[i * 4 + k] = A0[k] + (A1[k] - A0[k]) * t;
-      px[i * 4 + 3] = v * 255;
+      const u = pf === null ? -Infinity : (pf - Q[i]) / G[i], v = VEIL * smoothstep(-FZ, CORE / 2, u) * (1 - smoothstep(CORE / 2, CORE + FZ + TRAIL, u)), t = s.BT[i];
+      for (let k = 0; k < 3; k++) {
+        const a = A0[k] + (A1[k] - A0[k]) * t, p = P0[k] + (P1[k] - P0[k]) * t;
+        px[i * 4 + k] = opaque ? p + (a - p) * v : a;
+      }
+      px[i * 4 + 3] = opaque ? 255 : v * 255;
     }
     bg.getContext("2d")?.putImageData(img, 0, 0);
     ctx.drawImage(bg, 0, 0, s.grid.cols, s.grid.rows, 0, 0, s.grid.cols * s.grid.cw, s.grid.rows * s.grid.ch);
@@ -195,9 +216,50 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
     lastWipeMs = now - wv.t0;
     paint(wv.from, null);
     paint(wv.to, null);
+    themeItems = tw ? wv.to : null;
     if (scene) { scene.top.begin(); washPaper(scene, null); }
     curveAt(null, 0);
     wv.resolve();
+  };
+
+  /** The leaves the theme colours: the wave's two pages, or the current one. */
+  const tintSets = () => (wave ? [wave.from, wave.to] : themeItems ? [themeItems] : []);
+
+  /** Lands the theme wave: the stylesheet takes over, then a queued follow-up pass starts (M:469). */
+  const finishTheme = (now: number) => {
+    if (!tw) return;
+    tw = null;
+    th = queue.to;
+    if (scene) for (const a of [scene.TH, scene.BT, scene.S_TH, scene.S_BT]) a.fill(th);
+    document.documentElement.dataset.theme = th ? "dark" : "light";
+    if (queue.onWipeEnd()) { startTheme(now, THEME_MS); return; }
+    for (const items of tintSets()) tint(items, null);
+    themeItems = null;
+    if (grainEl) grainEl.style.opacity = "";
+    if (scene) { scene.top.begin(); washPaper(scene, null); }
+  };
+
+  /** Starts a theme wave to `queue.to` over `dur` ms (M:520, M:394); lands at once when nothing can animate. */
+  const startTheme = (now: number, dur: number) => {
+    const s = scene;
+    tw = { ts: now, dur };
+    if (!s || !page || dur <= 0 || dead || opts.reducedMotion || document.hidden) { finishTheme(now); return; }
+    s.S_TH.set(s.TH);
+    s.S_BT.set(s.BT);
+    if (!wave) themeItems = prep(page.layer, viewport(), s.css);
+    sync();
+  };
+
+  /** Steps TH (scattered, for glyphs) and BT (for paper and text) behind the theme front (M:470–473). */
+  const themeFront = (s: Scene, now: number) => {
+    if (!tw) return null;
+    const tf = s.frontAt(clamp((now - tw.ts) / tw.dur)), { Q, G } = s.band, to = queue.to;
+    for (let i = 0; i < Q.length; i++) {
+      const uu = (tf - Q[i]) / G[i];
+      s.TH[i] = s.S_TH[i] + (to - s.S_TH[i]) * smoothstep(-FZ, CORE + FZ, uu + (hash(i, 0) - 0.5) * SCAT);
+      s.BT[i] = s.S_BT[i] + (to - s.S_BT[i]) * smoothstep(-FZ, CORE + FZ, uu);
+    }
+    return tf;
   };
 
   const label = (s: Scene) => {
@@ -209,35 +271,48 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
 
   const render = (now: number) => {
     if (!scene || !page) return;
+    const themeDone = !!tw && now - tw.ts >= tw.dur;
+    if (themeDone) finishTheme(now);
     const done = !!wave && now - wave.t0 >= PAGE_MS;
     if (done) finish(now);
-    const wv = wave, s = scene, kn = knFor(s, page.id, page.layer), ls: FieldLayer[] = [];
+    const wv = wave, s = scene, kn = knFor(s, page.id, page.layer), ls: FieldLayer[] = [], tf = themeFront(s, now);
+    const fronts = tf === null ? [] : [tf];
+    let pf: number | null = null;
     if (!wv) { if (kn) ls.push([() => 1, kn]); }
     else {
-      const pf = s.frontAt(Math.min(1, (now - wv.t0) / PAGE_MS)), { Q, G } = s.band, pu = (i: number) => (pf - Q[i]) / G[i];
+      const f = (pf = s.frontAt(Math.min(1, (now - wv.t0) / PAGE_MS))), { Q, G } = s.band, pu = (i: number) => (f - Q[i]) / G[i];
       const vOut = (i: number) => 1 - smoothstep(-FZ, CORE / 2, pu(i)), vIn = (i: number) => smoothstep(CORE / 2, CORE + FZ, pu(i));
       if (wv.knFrom) ls.push([vOut, wv.knFrom]);
       if (kn) ls.push([vIn, kn]);
-      washPaper(s, pf);
-      curveAt(wv, pf);
-      s.top.begin();
-      drawBand(s.band, [pf], s.top.push);
+      curveAt(wv, f);
+      fronts.push(f);
       // no ghosting: the old page clears before the band core arrives, the new page appears once the core has passed
       paint(wv.from, vOut, [pu, -FZ, CORE / 2, true]);
       paint(wv.to, vIn, [pu, CORE / 2, CORE + FZ, false]);
+    }
+    if (tw) {
+      for (const items of tintSets()) tint(items, s.BT);
+      const g0 = THEMES[0].grain, bt = s.BT[s.BT.length >> 1];
+      if (grainEl) grainEl.style.opacity = String(g0 + (THEMES[1].grain - g0) * bt);
+    }
+    if (fronts.length) {
+      washPaper(s, pf);
+      s.top.begin();
+      drawBand(s.band, fronts, s.top.push);
     }
     s.sink.begin();
     if (ls.length) s.hero.draw(now, ls, s.sink.push);
     s.sink.end();
     label(s);
-    if (done) sync();
+    if (done || themeDone) sync();
   };
 
   /** Loop on the ticker only while a field page is visible and motion is allowed; otherwise draw once. */
   const sync = () => {
     if (!scene || dead) return;
     if (document.hidden && wave) finish(performance.now());
-    const loop = !opts.reducedMotion && !document.hidden && !!page && (!!wave || isFieldPage(page.id));
+    if (document.hidden && tw) finishTheme(performance.now());
+    const loop = !opts.reducedMotion && !document.hidden && !!page && (!!wave || !!tw || isFieldPage(page.id));
     if (loop && !unsub) unsub = subscribeToTicker(render, () => 0);
     if (!loop && unsub) { unsub(); unsub = null; }
     if (!loop && !document.hidden) render(0);
@@ -262,6 +337,9 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
   const setPage = (id: PageId, layer: HTMLElement) => {
     page = { id, layer };
     shown = -1;
+    queue.enter(zoneOf(id));
+    // the zone's theme rides the page wave when no theme wave is running (M:394)
+    if (!tw && queue.to !== th) startTheme(wave?.t0 ?? performance.now(), wave ? PAGE_MS : 0);
     sync();
   };
 
@@ -279,7 +357,7 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
       setPage(id, layer);
       return Promise.resolve();
     }
-    const vp = new DOMRect(0, 0, innerWidth, innerHeight), to = prep(layer, vp, s.css);
+    const vp = viewport(), to = prep(layer, vp, s.css);
     paint(to, () => 0);
     const knFrom = isFieldPage(prev.id) ? (s.kn.get(prev.id) ?? knFor(s, prev.id, ghost)) : null;
     return new Promise((resolve) => {
@@ -295,10 +373,10 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
     setPage,
     wipe,
     settle,
+    get want() { return queue.want; },
     toggleTheme: () => {
-      th = 1 - th;
-      scene?.TH.fill(th);
-      if (!unsub) sync();
+      if (queue.toggle()) startTheme(performance.now(), THEME_MS);
+      return queue.want;
     },
     resize: () => {
       if (!photos || !scene || scene.key === viewKey()) return;
@@ -306,12 +384,15 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
       scene.sink.destroy();
       scene.top.destroy();
       scene = buildScene(photos);
+      // a running theme wave carries on in the new scene (it started from uniform `th`); re-measure its leaves
+      if (tw && page) themeItems = prep(page.layer, viewport(), scene.css);
       if (unsub) { unsub(); unsub = null; }
       sync();
     },
     destroy: () => {
-      finish(performance.now());
       dead = true;
+      finishTheme(performance.now());
+      finish(performance.now());
       unsub?.();
       unsub = null;
       scene?.sink.destroy();

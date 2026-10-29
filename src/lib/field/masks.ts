@@ -1,8 +1,12 @@
+import { THEMES } from "./constants";
+
 /** The field's cell grid in CSS px, with Q (signed distance across the site curve) per cell. */
 export type CellGrid = { cols: number; rows: number; cw: number; ch: number; Q: Float32Array };
 
-/** A page leaf (`[data-c]` text or `[data-p]` mark) and the cells along its wave normal. */
-export type Item = { el: HTMLElement; photo: boolean; ci: number; deg: string; idx: number[]; m?: string };
+type Kind = "mid" | "mute" | "acc";
+
+/** A page leaf (`[data-c]` text or `[data-p]` mark) and the cells along its wave normal; `m`/`bg`/`pc` cache what was last written. */
+export type Item = { el: HTMLElement; text: boolean; kind: Kind; photo: boolean; ci: number; deg: string; idx: number[]; m?: string; bg?: string; pc?: string };
 
 /** Photo reveal: `u(i)` behind the front, eased from `e0` to `e1`; `out` fades instead of reveals. */
 export type Band = [u: (i: number) => number, e0: number, e1: number, out: boolean];
@@ -23,7 +27,7 @@ export const prep = (layer: HTMLElement, root: DOMRect, g: CellGrid): Item[] =>
     const gl = Math.hypot(gx, gy) || 1, nx = gx / gl, ny = gy / gl, ang = Math.atan2(nx, -ny);
     const L = Math.abs(b.width * Math.sin(ang)) + Math.abs(b.height * Math.cos(ang)), K = Math.max(MIN_STOPS, Math.ceil(L / STOP_PX));
     return {
-      el, photo: el.tagName === "FIGURE", ci, deg: ((ang * 180) / Math.PI).toFixed(1),
+      el, text: !!el.dataset.c, kind: (el.dataset.c || el.dataset.p) as Kind, photo: el.tagName === "FIGURE", ci, deg: ((ang * 180) / Math.PI).toFixed(1),
       idx: Array.from({ length: K }, (_, k) => cellAt(g, x + (k / (K - 1) - 0.5) * L * nx, y + (k / (K - 1) - 0.5) * L * ny)),
     };
   });
@@ -54,5 +58,34 @@ export const paint = (items: Item[], alpha: ((i: number) => number) | null, band
     const m = !alpha ? "" : it.photo && band ? pmask(it, band) : mask(it, alpha);
     if (m === (it.m ?? "")) continue;
     it.el.style.maskImage = it.el.style.webkitMaskImage = it.m = m;
+  }
+};
+
+/** A theme colour between light (th 0) and dark (th 1) (M:330). */
+const tcol = (kind: Kind | "paper", th: number) => {
+  const A = THEMES[0][kind], B = THEMES[1][kind];
+  return `rgb(${(A[0] + (B[0] - A[0]) * th) | 0},${(A[1] + (B[1] - A[1]) * th) | 0},${(A[2] + (B[2] - A[2]) * th) | 0})`;
+};
+
+/**
+ * Theme colour along the wave normal (M:354–355): text as a gradient clipped to its glyphs, marks as `--pc`/`--pp`.
+ * Written only while the theme moves; `bt === null` hands colour back to the stylesheet.
+ */
+export const tint = (items: Item[], bt: Float32Array | null): void => {
+  for (const it of items) {
+    const st = it.el.style;
+    if (it.text) {
+      const g = !bt ? "" : `linear-gradient(${it.deg}deg,${it.idx.map((i, k) => `${tcol(it.kind, bt[i])} ${((100 * k) / (it.idx.length - 1)).toFixed(1)}%`).join(",")})`;
+      if (g === (it.bg ?? "")) continue;
+      st.backgroundImage = it.bg = g;
+      st.backgroundClip = g && "text";
+      st.setProperty("-webkit-background-clip", g && "text");
+      st.color = g && "transparent";
+      continue;
+    }
+    const pc = bt ? tcol(it.kind, bt[it.ci]) : "";
+    if (pc === (it.pc ?? "")) continue;
+    st.setProperty("--pc", (it.pc = pc));
+    st.setProperty("--pp", bt ? tcol("paper", bt[it.ci]) : "");
   }
 };

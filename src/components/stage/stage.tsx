@@ -6,11 +6,10 @@ import { createContext, useCallback, useContext, useEffect, useLayoutEffect, use
 import { tickerSubscriberCount } from "@/lib/animation/ticker";
 import { CURVE, H, W } from "@/lib/field/constants";
 import { createEngine, type Engine } from "@/lib/field/engine";
-import { curveVisible, pageIdFor } from "@/lib/field/page-id";
+import { curveVisible, pageIdFor, zoneOf } from "@/lib/field/page-id";
+import { ZONE_THEMES, type Theme } from "@/lib/field/theme-queue";
 
 import { NavBar } from "./nav-bar";
-
-type Theme = 0 | 1;
 
 const RESIZE_MS = 150;
 
@@ -38,7 +37,8 @@ export const Stage = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
   const id = pageIdFor(pathname);
-  const [theme, setTheme] = useState<Theme>(0);
+  /** The toggle label: the current zone's wanted theme. The engine owns `html[data-theme]`. */
+  const [theme, setTheme] = useState<Theme>(() => ZONE_THEMES[zoneOf(id)]);
   const fldRef = useRef<HTMLCanvasElement>(null);
   const layerRef = useRef<HTMLElement>(null);
   const engineRef = useRef<Engine | null>(null);
@@ -70,6 +70,7 @@ export const Stage = ({ children }: { children: ReactNode }) => {
     const engine = createEngine(root, { reducedMotion: reducedRef.current });
     engineRef.current = engine;
     if (layerRef.current) engine.setPage(pageIdFor(pathRef.current), layerRef.current);
+    setTheme(engine.want);
     if (process.env.NEXT_PUBLIC_E2E === "1") Object.assign(window, { __engine: engine, __tickers: tickerSubscriberCount });
     let timer: ReturnType<typeof setTimeout> | undefined;
     const onResize = () => {
@@ -94,10 +95,6 @@ export const Stage = ({ children }: { children: ReactNode }) => {
     };
   }, [freeze]);
 
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme ? "dark" : "light";
-  }, [theme]);
-
   const go = useCallback(
     (href: string) => {
       if (samePath(new URL(href, location.href).pathname, pathRef.current)) return;
@@ -114,7 +111,7 @@ export const Stage = ({ children }: { children: ReactNode }) => {
     const layer = layerRef.current, engine = engineRef.current, ghost = pendingRef.current;
     pendingRef.current = null;
     if (!layer || !engine) return;
-    if (!ghost) { engine.setPage(id, layer); return; }
+    if (!ghost) { engine.setPage(id, layer); setTheme(engine.want); return; }
     scrollTo(0, 0);
     const token = ++waveRef.current;
     wipingRef.current = true;
@@ -126,10 +123,11 @@ export const Stage = ({ children }: { children: ReactNode }) => {
       queuedRef.current = null;
       if (next) go(next);
     });
+    setTheme(engine.want);
   }, [pathname, id, go]);
   const toggleTheme = useCallback(() => {
-    engineRef.current?.toggleTheme();
-    setTheme((t) => (t ? 0 : 1));
+    const engine = engineRef.current;
+    if (engine) setTheme(engine.toggleTheme());
   }, []);
   const api = useMemo(() => ({ go, toggleTheme, theme }), [go, toggleTheme, theme]);
 

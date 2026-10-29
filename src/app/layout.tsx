@@ -19,12 +19,15 @@ const paperMono = localFont({
   display: "swap",
 });
 
+const THEME_BOOT = `document.documentElement.dataset.theme=/^\\/photography\\/?$/.test(location.pathname)?"dark":"light"`;
+
 export const metadata: Metadata = generateMetadata();
 export const viewport: Viewport = generateViewport();
 
 /**
  * The font variable is set on `<html>` so the `:root` token in `globals.css`
- * can see it. The site always opens light; the stage owns `data-theme`.
+ * can see it. `THEME_BOOT` sets `data-theme` before first paint (photography
+ * opens dark, the rest light: `ZONE_THEMES`); the field engine owns it after.
  */
 export default function RootLayout({
   children,
@@ -32,7 +35,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="light" suppressHydrationWarning className={paperMono.variable}>
+    <html lang="en" suppressHydrationWarning className={paperMono.variable}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      </head>
       <body>
         <script
           type="application/ld+json"
