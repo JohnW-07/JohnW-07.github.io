@@ -1,6 +1,4 @@
-import { CompartmentDoor } from "@/components/site/compartment-door";
-import { doors, sheetFrames as frames, loadedCount, sheet } from "@/data/photography";
-import { projects } from "@/data/projects";
+import { sheetFrames as frames, loadedCount, sheet } from "@/data/photography";
 import { ContactSheet } from "@/views/photography/contact-sheet";
 import { SheetMasthead } from "@/views/photography/sheet-masthead";
 
@@ -28,7 +26,7 @@ const facts = [
  *
  * The whole page runs in the darkroom theme, stamped on `<html>` before first
  * paint by the bootstrap script in the root layout, so there is no flash of
- * the lab palette on the way in. See `components/site/theme-sync.tsx`.
+ * the lab palette on the way in.
  */
 export const PhotographyView = () => (
   <main>
@@ -39,11 +37,5 @@ export const PhotographyView = () => (
       facts={facts}
     />
     <ContactSheet className="mt-4 lg:mt-8" />
-    <CompartmentDoor
-      theme="lab"
-      href="/#work"
-      code={`Index · ${projects.length} projects`}
-      {...doors.toLab}
-    />
   </main>
 );
