@@ -1,3 +1,4 @@
+import { contact } from "@/data/contact";
 import {
   PLACEHOLDER,
   type AssetSlot,
@@ -53,24 +54,16 @@ export const profile = {
    it should carry something no other section says. */
 
 export const links: readonly ExternalLink[] = [
-  { label: "Email", href: "mailto:johnwu07@terpmail.umd.edu" },
-  { label: "GitHub", href: "https://github.com/JohnW-07", external: true },
-  { label: "LinkedIn", href: "https://linkedin.com/in/john-wu07", external: true },
+  { label: "Email", href: `mailto:${contact.email.primary}` },
+  { label: "GitHub", href: contact.github, external: true },
+  { label: "LinkedIn", href: contact.linkedin, external: true },
 ];
 
-/**
- * Résumé download. The PDF is a placeholder until John drops his current
- * one-pager in `public/`. Left out of the header until the file exists so the
- * site never ships a link to a 404.
- */
-export const resume = {
-  href: "/john-wu-resume.pdf",
-  available: false,
-  note: "Add public/john-wu-resume.pdf, then set available: true",
-} as const;
+/** Résumé download. Edit it in `@/data/contact`. */
+export const resume = contact.resume;
 
 export const education = {
-  school: "University of Maryland, College Park",
+  school: contact.school,
   degree: "B.S. Computer Science",
   graduation: "Expected Spring 2028",
   gpa: "3.73",

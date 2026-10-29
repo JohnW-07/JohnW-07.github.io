@@ -5,10 +5,11 @@ import TextEngine from "spring-text-engine";
 import { MonoLabel } from "@/components/ui/mono-label";
 import { Reveal } from "@/components/ui/reveal";
 import { Section } from "@/components/ui/section";
+import { contact } from "@/data/contact";
 import { links } from "@/data/profile";
 import { ease, textTiming } from "@/lib/motion";
 
-const EMAIL = "johnwu07@terpmail.umd.edu";
+const EMAIL = contact.email.primary;
 
 /**
  * Contact.
@@ -23,7 +24,7 @@ export const Contact = ({ className }: { className?: string }) => (
     id="contact"
     index="04"
     title="Contact"
-    annotation="College Park, MD"
+    annotation={contact.based}
   >
     <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-12">
       <div className="lg:col-span-8">

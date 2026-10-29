@@ -4,6 +4,7 @@
  * Consumed by the metadata generator, `robots.ts`, `sitemap.ts`, and the
  * JSON-LD structured-data helper.
  */
+import { contact } from "@/data/contact";
 import { publicEnv } from "@/env";
 
 export const siteConfig = {
@@ -22,10 +23,7 @@ export const siteConfig = {
   /** Browser theme-color. Matches the lab paper token. */
   themeColor: "#f4f1ea",
   jobTitle: "Computer science student and machine learning researcher",
-  email: "johnwu07@terpmail.umd.edu",
-  profiles: [
-    "https://github.com/JohnW-07",
-    "https://linkedin.com/in/john-wu07",
-  ],
-  affiliation: "University of Maryland, College Park",
+  email: contact.email.primary,
+  profiles: [contact.github, contact.linkedin],
+  affiliation: contact.school,
 } as const;
