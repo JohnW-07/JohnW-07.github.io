@@ -19,6 +19,8 @@ import { createThemeQueue, ZONE_THEMES, type Theme } from "./theme-queue";
 
 export type Engine = {
   setPage: (id: PageId, layer: HTMLElement) => void;
+  /** Starts the page wave on the click, from the frozen `ghost`, before the route commits. */
+  launch: (ghost: HTMLElement) => void;
   wipe: (ghost: HTMLElement | null, layer: HTMLElement, id: PageId) => Promise<void>;
   /** Flips the current zone's theme; returns the theme it now wants. */
   toggleTheme: () => Theme;
@@ -60,8 +62,10 @@ type Scene = {
   paper: { ctx: CanvasRenderingContext2D; bg: HTMLCanvasElement; img: ImageData } | null;
 };
 
-/** A running page wipe: the old page's leaves fade ahead of the band core, the new page's behind it. */
-type Wave = { t0: number; fromId: PageId; from: Item[]; to: Item[]; knFrom: Float32Array | null; resolve: () => void };
+/** A running page wipe: the old page's leaves fade ahead of the band core, the new page's behind it (`to` is null until the route commits). */
+type Wave = {
+  t0: number; fromId: PageId; ghost: HTMLElement; from: Item[]; to: Item[] | null; knFrom: Float32Array | null; done: Promise<void>; resolve: () => void;
+};
 
 /** A running theme wave toward `queue.to`. */
 type ThemeWave = { ts: number; dur: number };
@@ -215,7 +219,8 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
     wave = null;
     lastWipeMs = now - wv.t0;
     paint(wv.from, null);
-    paint(wv.to, null);
+    if (wv.to) paint(wv.to, null);
+    if (page) page.layer.style.visibility = "";
     themeItems = tw ? wv.to : null;
     if (scene) { scene.top.begin(); washPaper(scene, null); }
     curveAt(null, 0);
@@ -223,7 +228,7 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
   };
 
   /** The leaves the theme colours: the wave's two pages, or the current one. */
-  const tintSets = () => (wave ? [wave.from, wave.to] : themeItems ? [themeItems] : []);
+  const tintSets = () => (wave ? [wave.from, wave.to ?? []] : themeItems ? [themeItems] : []);
 
   /** Lands the theme wave: the stylesheet takes over, then a queued follow-up pass starts (M:469). */
   const finishTheme = (now: number) => {
@@ -283,12 +288,12 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
       const f = (pf = s.frontAt(Math.min(1, (now - wv.t0) / PAGE_MS))), { Q, G } = s.band, pu = (i: number) => (f - Q[i]) / G[i];
       const vOut = (i: number) => 1 - smoothstep(-FZ, CORE / 2, pu(i)), vIn = (i: number) => smoothstep(CORE / 2, CORE + FZ, pu(i));
       if (wv.knFrom) ls.push([vOut, wv.knFrom]);
-      if (kn) ls.push([vIn, kn]);
+      if (kn && wv.to) ls.push([vIn, kn]);
       curveAt(wv, f);
       fronts.push(f);
       // no ghosting: the old page clears before the band core arrives, the new page appears once the core has passed
       paint(wv.from, vOut, [pu, -FZ, CORE / 2, true]);
-      paint(wv.to, vIn, [pu, CORE / 2, CORE + FZ, false]);
+      if (wv.to) paint(wv.to, vIn, [pu, CORE / 2, CORE + FZ, false]);
     }
     if (tw) {
       for (const items of tintSets()) tint(items, s.BT);
@@ -349,21 +354,34 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
     sync();
   };
 
-  /** Runs the 1.8s page wave from the `ghost` copy of the old page to `layer`; resolves when it has passed. */
-  const wipe = (ghost: HTMLElement | null, layer: HTMLElement, id: PageId): Promise<void> => {
+  /** Starts the 1.8s page wave from the `ghost` copy of the old page; the live layer hides behind its copy until `wipe` attaches the new page. */
+  const launch = (ghost: HTMLElement) => {
     settle();
     const s = scene, prev = page;
-    if (opts.reducedMotion || document.hidden || !s || !ghost || !prev) {
+    if (opts.reducedMotion || document.hidden || !s || !prev) return;
+    const knFrom = isFieldPage(prev.id) ? (s.kn.get(prev.id) ?? knFor(s, prev.id, ghost)) : null;
+    let resolve = () => {};
+    const done = new Promise<void>((r) => (resolve = r));
+    wave = { t0: performance.now(), fromId: prev.id, ghost, from: prep(ghost, viewport(), s.css), to: null, knFrom, done, resolve };
+    prev.layer.style.visibility = "hidden";
+    sync();
+  };
+
+  /** Brings `layer` in behind the wave launched from `ghost` (launching it now if the click did not); resolves when it has passed. */
+  const wipe = (ghost: HTMLElement | null, layer: HTMLElement, id: PageId): Promise<void> => {
+    if (ghost && (wave?.ghost !== ghost || wave.to)) launch(ghost);
+    const wv = wave, s = scene;
+    if (!ghost || !wv || wv.ghost !== ghost || !s) {
+      settle();
       setPage(id, layer);
       return Promise.resolve();
     }
-    const vp = viewport(), to = prep(layer, vp, s.css);
+    layer.style.visibility = "";
+    const to = prep(layer, viewport(), s.css);
     paint(to, () => 0);
-    const knFrom = isFieldPage(prev.id) ? (s.kn.get(prev.id) ?? knFor(s, prev.id, ghost)) : null;
-    return new Promise((resolve) => {
-      wave = { t0: performance.now(), fromId: prev.id, from: prep(ghost, vp, s.css), to, knFrom, resolve };
-      setPage(id, layer);
-    });
+    wave = { ...wv, to };
+    setPage(id, layer);
+    return wv.done;
   };
 
   return {
@@ -371,6 +389,7 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
     get ready() { return !!scene; },
     get lastWipeMs() { return lastWipeMs; },
     setPage,
+    launch,
     wipe,
     settle,
     get want() { return queue.want; },

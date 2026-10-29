@@ -100,6 +100,8 @@ export const Stage = ({ children }: { children: ReactNode }) => {
       if (samePath(new URL(href, location.href).pathname, pathRef.current)) return;
       if (wipingRef.current) { queuedRef.current = href; return; }
       if (!reducedRef.current) freeze();
+      // the band starts on the click, a few frames before the route commits
+      if (pendingRef.current) engineRef.current?.launch(pendingRef.current);
       router.push(href, { scroll: !pendingRef.current });
     },
     [router, freeze],

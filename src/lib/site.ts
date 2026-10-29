@@ -20,8 +20,8 @@ export const siteConfig = {
   ogImage: "/open-graph.png",
   twitterHandle: "",
   author: "John Wu",
-  /** Browser theme-color. Matches the lab paper token. */
-  themeColor: "#f4f1ea",
+  /** Browser theme-color. Matches the light `--paper` token. */
+  themeColor: "#f7f8fc",
   jobTitle: "Computer science student and machine learning researcher",
   email: contact.email.primary,
   profiles: [contact.github, contact.linkedin],
