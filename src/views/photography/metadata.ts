@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { sheet } from "@/data/photography";
+import { photoPage } from "@/data/photography";
 import { siteConfig } from "@/lib/site";
 import { generateMetadata as buildMetadata } from "@/utils/seo/generate-page-metadata";
 
@@ -12,6 +12,6 @@ import { generateMetadata as buildMetadata } from "@/utils/seo/generate-page-met
 export const photographyMetadata = (): Metadata =>
   buildMetadata({
     title: `Photography · ${siteConfig.name}`,
-    description: sheet.description,
+    description: photoPage.description,
     url: "/photography",
   });

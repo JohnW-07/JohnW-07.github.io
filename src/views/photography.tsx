@@ -1,41 +1,46 @@
-import { sheetFrames as frames, loadedCount, sheet } from "@/data/photography";
-import { ContactSheet } from "@/views/photography/contact-sheet";
-import { SheetMasthead } from "@/views/photography/sheet-masthead";
+import Image from "next/image";
+import type { CSSProperties } from "react";
 
-/**
- * Facts about the sheet, not about the photographer.
- *
- * The fact bank records that John shoots and nothing else — no genre, no
- * camera, no body of work. So the masthead states what is actually knowable
- * here: how many frames the sheet holds and how many have been printed.
- */
-const facts = [
-  { label: "Sheet", value: sheet.rollCode },
-  { label: "Frames", value: String(frames.length) },
-  { label: "Printed", value: String(loadedCount) },
-  { label: "Compartment", value: "Darkroom" },
-] as const;
+import { JsonLd } from "@/components/seo/json-ld";
+import { frames, photoPage, photoSets } from "@/data/photography";
+import type { PhotoFrame } from "@/data/types";
+import { getGalleryStructuredData } from "@/utils/seo/structured-data";
+import { Words } from "@/views/shared/words";
 
-/**
- * Photography — the darkroom compartment.
- *
- * Three parts and no filler: the sheet's masthead, the sheet, and the door
- * back. There is no artist statement and no "selected works" carousel, because
- * inventing either would mean writing copy about work that has not been
- * published yet.
- *
- * The whole page runs in the darkroom theme, stamped on `<html>` before first
- * paint by the bootstrap script in the root layout, so there is no flash of
- * the lab palette on the way in.
- */
+const Frame = ({ f, sizes }: { f: PhotoFrame; sizes: string }) => (
+  <figure data-p="mute" style={{ "--ar": (f.w / f.h).toFixed(4) } as CSSProperties}>
+    <Image src={f.src} alt={f.alt} width={f.w} height={f.h} sizes={sizes} draggable={false} />
+    <figcaption data-c="mute">{f.name}</figcaption>
+  </figure>
+);
+
+/** Photography: one section per set, a justified highlights row then every frame (R14 `photoPage`). */
 export const PhotographyView = () => (
-  <main>
-    <SheetMasthead
-      rollCode={sheet.rollCode}
-      lede={sheet.lede}
-      note={sheet.note}
-      facts={facts}
-    />
-    <ContactSheet className="mt-4 lg:mt-8" />
-  </main>
+  <div className="ps">
+    <JsonLd data={getGalleryStructuredData(Object.values(frames))} />
+    <h1>
+      <Words text={photoPage.title} />
+    </h1>
+    <pre className="sub" data-c="mute">{photoPage.sub}</pre>
+    {photoSets.map((s) => (
+      <section key={s.n} className="set" aria-label={s.title}>
+        <header className="set-h">
+          <h2 className="t" data-c="mid">{`${s.n} · ${s.title}`}</h2>
+          <pre data-c="mute">{`${s.meta} · ${photoPage.count(s.frames.length)}`}</pre>
+        </header>
+        <pre className="gl" data-c="mute">{photoPage.highlights}</pre>
+        <div className="hl">
+          {s.highlights.map((id) => (
+            <Frame key={id} f={frames[id]} sizes="(max-width: 1099px) 100vw, 50vw" />
+          ))}
+        </div>
+        <pre className="gl" data-c="mute">{photoPage.all}</pre>
+        <div className="grid">
+          {s.frames.map((id) => (
+            <Frame key={id} f={frames[id]} sizes="(max-width: 1099px) 50vw, 17vw" />
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
 );

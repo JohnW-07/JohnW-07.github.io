@@ -1,3 +1,4 @@
+import { JsonLd } from "@/components/seo/json-ld";
 import type { Project } from "@/data/types";
 import { getProjectStructuredData } from "@/utils/seo/structured-data";
 
@@ -7,17 +8,12 @@ import { getProjectStructuredData } from "@/utils/seo/structured-data";
  * second copy of the profile on every page.
  */
 export const ProjectSchema = ({ project }: { project: Project }) => (
-  <script
-    type="application/ld+json"
-    dangerouslySetInnerHTML={{
-      __html: JSON.stringify(
-        getProjectStructuredData({
-          title: project.title,
-          summary: project.summary,
-          slug: project.slug,
-          period: project.period,
-        }),
-      ),
-    }}
+  <JsonLd
+    data={getProjectStructuredData({
+      title: project.title,
+      summary: project.summary,
+      slug: project.slug,
+      period: project.period,
+    })}
   />
 );

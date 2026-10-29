@@ -81,15 +81,6 @@ export interface SkillGroup {
   readonly items: readonly string[];
 }
 
-/** One frame on the photography contact sheet. */
-export interface Frame {
-  readonly id: string;
-  readonly asset: AssetSlot;
-  readonly caption: string | Placeholder;
-  /** Shot metadata, printed in the margin like a film rebate. */
-  readonly exif: string | Placeholder;
-}
-
 /** An exported photograph under `public/`. `w`/`h` are the export's pixel size. */
 export interface PhotoFrame {
   readonly src: string;

@@ -229,6 +229,46 @@ canvas.top {
 [data-layer] .idx li > * { width: 100%; display: grid; grid-template-columns: 4ch var(--dc, 12ch) 1fr auto; column-gap: 2ch; line-height: 2.5; text-align: left; border-bottom: 1px solid var(--pc); }
 [data-layer] .idx :is(a, button):hover .t { font-weight: 700; }
 [data-layer] .idx.all { --dc: 18ch; }
+[data-layer] p.idx { line-height: 2.5; border-bottom: 1px solid var(--line); }
+
+/* figures ink with currentColor; map the drawings' old theme names onto Paper Mono */
+:root { --font-mono-family: var(--font-mono); --paper-2: var(--paper); }
+[data-layer] .fp-d .text-ink-3 { color: var(--mute); }
+[data-layer] .fp-d .text-paper { color: var(--paper); }
+
+/* reading text stays selectable */
+[data-layer] :is(.cb, .addr, .note, .kv, .spec, .sum) { user-select: text; }
+
+/* case study: the header is placed; the narrative flows below it */
+[data-layer] .cb { margin-top: 41cqw; display: grid; gap: 4cqw; }
+[data-layer] .cb .cs { display: grid; grid-template-columns: 22cqw 1fr; column-gap: 3cqw; padding-top: 1.2cqw; border-top: 1px solid var(--pc); }
+[data-layer] .cb .cs header { display: grid; align-content: start; gap: 0.4cqw; }
+[data-layer] .cb .cs h2 { font-weight: 700; font-size: var(--fs-sum); line-height: 1.3; }
+[data-layer] .cb .cs > div { display: grid; gap: 1.2cqw; max-width: 58cqw; font-size: var(--fs-sum); line-height: 1.6; }
+[data-layer] .cb .cs dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.3cqw 1.2cqw; align-content: start; }
+[data-layer] .cb .lede { max-width: 58cqw; font-size: var(--fs-sum); line-height: 1.6; }
+[data-layer] .fp { margin: 0; display: grid; gap: 1cqw; padding-top: 1.2cqw; border-top: 1px solid var(--pc); }
+[data-layer] .fp figcaption { max-width: 72cqw; white-space: normal; }
+[data-layer] .fp-d svg { display: block; width: 100%; height: auto; }
+[data-layer] .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2cqw; }
+[data-layer] .cmp > div { display: grid; gap: 0.4cqw; align-content: start; }
+[data-layer] .cmp img { width: 100%; height: auto; display: block; }
+
+/* résumé: experience left, spec blocks right, the page scrolls past the frame */
+[data-layer][data-page="resume"] { min-height: max(100svh, 76cqw); }
+[data-layer] .dl { position: absolute; right: 3cqw; top: 6.6cqw; }
+[data-layer] .dl:hover { font-weight: 700; }
+[data-layer] .idx.xp { width: 58cqw; --dc: 15ch; }
+[data-layer] .spec.rs { display: grid; gap: 2.4cqw; }
+[data-layer] .spec.rs h2 { margin-bottom: 0.6cqw; }
+[data-layer] .spec.rs dl { grid-template-columns: 11ch 1fr; }
+[data-layer] .spec.rs dt { white-space: normal; }
+
+/* contact A */
+[data-layer] :is(.note, .kv) { top: 44cqw; }
+[data-layer] .kv { left: 58cqw; }
+[data-layer] .kv > div { display: contents; }
+[data-layer] .acts > :hover { font-weight: 700; }
 
 /* ---- mid + phone: one flow column (R13) ---------------------------------- */
 
@@ -269,4 +309,15 @@ canvas.top {
   [data-layer] .idx li > * > :nth-child(3) { grid-area: 1 / 2 / 2 / 4; }
   [data-layer] .idx li > * > :nth-child(2) { grid-area: 2 / 2; }
   [data-layer] .idx li > * > :nth-child(4) { grid-area: 2 / 3; }
+  [data-layer] .cb { margin-top: 4cqw; gap: 8cqw; }
+  [data-layer] .cb .cs { grid-template-columns: 1fr; row-gap: 2.4cqw; padding-top: 2.4cqw; }
+  [data-layer] .cb .cs > div, [data-layer] .cb .lede { max-width: none; }
+  [data-layer] .cb .cs dl { grid-template-columns: 9ch 1fr; gap: 1.2cqw 3cqw; }
+  [data-layer] .fp-d { overflow-x: auto; }
+  [data-layer] .cmp { grid-template-columns: 1fr; gap: 3cqw; }
+  [data-layer] .dl { align-self: flex-start; }
+  [data-layer] .spec.rs { gap: 6cqw; }
+  [data-layer] .spec.rs h2 { margin-bottom: 1.6cqw; }
+  [data-layer] .spec dl { gap: 1.2cqw 3cqw; }
+  [data-layer] :is(.note, .kv, .sum, .spec, .idx) { width: auto; }
 }

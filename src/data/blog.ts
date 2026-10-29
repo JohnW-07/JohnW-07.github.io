@@ -9,6 +9,9 @@ import type { BlogPost } from "@/data/types";
  */
 
 export const blog = {
+  title: "Blog",
+  sub: "notes on the work",
+  foot: "posts go up as they are written",
   /** Meta description for `/blog`. */
   description: "Writing from John Wu: notes on the work, posted as they are written.",
   /** Opening line. Set large, in the display face. */

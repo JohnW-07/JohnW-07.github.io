@@ -29,3 +29,10 @@ export const allProjectsPage = {
   noPage: "no page",
   back: "← timeline",
 } as const;
+
+/** Case-study header (R14): back link, results label, the six spec keys. */
+export const casePage = {
+  back: "← projects",
+  results: "RESULTS",
+  keys: { role: "role", org: "org", period: "period", where: "where", type: "type", stack: "stack" },
+} as const;

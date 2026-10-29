@@ -68,3 +68,30 @@ export function getProjectStructuredData(project: {
     author: { "@id": `${siteConfig.url}/#person` },
   };
 }
+
+/** `/resume`: a profile page whose subject is the root `Person` node. */
+export function getResumeStructuredData() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "@id": `${siteConfig.url}/resume#page`,
+    url: `${siteConfig.url}/resume`,
+    mainEntity: { "@id": `${siteConfig.url}/#person` },
+  };
+}
+
+/** `/photography`: every published frame, credited to the root `Person`. */
+export function getGalleryStructuredData(images: readonly { src: string; alt: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ImageGallery",
+    "@id": `${siteConfig.url}/photography#gallery`,
+    url: `${siteConfig.url}/photography`,
+    author: { "@id": `${siteConfig.url}/#person` },
+    associatedMedia: images.map((image) => ({
+      "@type": "ImageObject",
+      contentUrl: `${siteConfig.url}${image.src}`,
+      description: image.alt,
+    })),
+  };
+}
