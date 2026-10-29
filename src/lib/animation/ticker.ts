@@ -76,3 +76,6 @@ export const subscribeToTicker = (
     if (subscribers.size === 0) stop();
   };
 };
+
+/** Live subscriber count (diagnostics and e2e). */
+export const tickerSubscriberCount = (): number => subscribers.size;
