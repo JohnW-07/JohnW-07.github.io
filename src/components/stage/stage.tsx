@@ -45,7 +45,7 @@ export const Stage = ({ children }: { children: ReactNode }) => {
     <StageContext.Provider value={api}>
       <canvas data-paper aria-hidden />
       <canvas className="fld" aria-hidden />
-      <svg data-curve data-off={!curveVisible(id) || undefined} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden>
+      <svg data-curve data-off={!curveVisible(id) || undefined} viewBox={`0 0 ${W} ${H}`} aria-hidden>
         <defs>
           <linearGradient id="site-curve" x1="1" y1="0" x2="0" y2="1">
             <stop offset="0" style={{ stopColor: "var(--curve-a)" }} />
@@ -63,10 +63,12 @@ export const Stage = ({ children }: { children: ReactNode }) => {
         <rect width="100%" height="100%" filter="url(#grain)" />
       </svg>
       <div data-ghost aria-hidden inert />
-      <main data-layer data-page={id}>
-        <NavBar />
-        {children}
-      </main>
+      <div data-frame>
+        <main data-layer data-page={id}>
+          <NavBar />
+          {children}
+        </main>
+      </div>
       <canvas className="top" aria-hidden />
     </StageContext.Provider>
   );

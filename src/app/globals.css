@@ -94,13 +94,22 @@ body {
 canvas[data-paper],
 canvas.fld,
 canvas.top,
-svg[data-curve],
 svg.grain,
 [data-ghost] {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
+  pointer-events: none;
+}
+
+/* the site curve is drawn in the 16:10 design frame at page width (1u = 1/16 cqw) and scrolls with the page */
+svg[data-curve] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 16 / 10;
   pointer-events: none;
 }
 
@@ -117,8 +126,12 @@ canvas.top {
   z-index: 2;
 }
 
-[data-layer] {
+/* the cqw container: full width and unpadded, so 1cqw is 1% of the page (the mockup's .pg) */
+[data-frame] {
   container-type: inline-size;
+}
+
+[data-layer] {
   position: relative;
   box-sizing: border-box;
   min-height: max(100svh, 50cqw);
@@ -127,6 +140,11 @@ canvas.top {
   font-size: var(--fs-base);
   line-height: 1.5;
   user-select: none;
+}
+
+/* the timeline is placed in the full 16:10 design frame */
+[data-layer][data-page="projects"] {
+  min-height: max(100svh, 62.5cqw);
 }
 
 /* ---- leaves: text colour (data-c) and painted marks (data-p) ------------ */
@@ -141,7 +159,7 @@ canvas.top {
 
 /* ---- page type and blocks (desk) ----------------------------------------- */
 
-[data-layer] :is(pre, p, dl, dd, h3) { margin: 0; font: inherit; }
+[data-layer] :is(pre, p, dl, dd, h2, h3) { margin: 0; font: inherit; }
 [data-layer] pre { white-space: pre; }
 [data-layer] button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; white-space: pre; }
 [data-layer] a { color: inherit; text-decoration: none; white-space: pre; }
@@ -157,6 +175,8 @@ canvas.top {
 [data-layer] .sub { position: absolute; left: 3cqw; top: 15.6cqw; }
 [data-layer] .pj { position: absolute; width: 16.5cqw; display: grid; gap: 0.3cqw; cursor: pointer; }
 [data-layer] .pj .t { font-weight: 700; font-size: var(--fs-pj); line-height: 1.35; }
+[data-layer] .pj .t a { white-space: normal; }
+[data-layer] .pj .t a::after { content: ""; position: absolute; inset: 0; }
 [data-layer] .pd { letter-spacing: 0.06em; }
 [data-layer] .node { position: absolute; left: -0.475cqw; width: 0.95cqw; height: 0.95cqw; margin-top: -0.475cqw; border-radius: 50%; border: 0.2cqw solid var(--pc); background: var(--pp); box-sizing: border-box; }
 [data-layer] .pj:hover .node { background: var(--pc); }
