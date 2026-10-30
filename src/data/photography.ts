@@ -17,9 +17,9 @@ export const photoPage = {
  */
 export const frames: Readonly<Record<string, PhotoFrame>> = {
   p8223146: { src: "/assets/photography/p8223146.jpg", alt: "Photograph P8223146, August 2025", name: "P8223146", w: 2000, h: 1500 },
-  p8223358: { src: "/assets/photography/p8223358.jpg", alt: "Photograph P8223358, August 2025", name: "P8223358", w: 2000, h: 1500 },
+  p8223358: { src: "/assets/photography/p8223358.jpg", alt: "Photograph P8223358, August 2025", name: "P8223358", w: 1500, h: 2000 },
   p6189270: { src: "/assets/photography/p6189270.jpg", alt: "Photograph P6189270, June 2025", name: "P6189270", w: 2000, h: 1500 },
-  p6147377: { src: "/assets/photography/p6147377.jpg", alt: "Photograph P6147377, June 2025", name: "P6147377", w: 2000, h: 1500 },
+  p6147377: { src: "/assets/photography/p6147377.jpg", alt: "Photograph P6147377, June 2025", name: "P6147377", w: 1500, h: 2000 },
   img_3628: { src: "/assets/photography/img_3628.jpg", alt: "Photograph IMG_3628, June 2023", name: "IMG_3628", w: 2000, h: 1500 },
   img_1990: { src: "/assets/photography/img_1990.jpg", alt: "Photograph IMG_1990, March 2023", name: "IMG_1990", w: 1215, h: 2000 },
 };

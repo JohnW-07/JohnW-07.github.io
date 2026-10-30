@@ -219,9 +219,8 @@ canvas.top {
 [data-layer] .hl { display: flex; gap: 0.6cqw; }
 [data-layer] :is(.hl, .grid) figure { margin: 0; display: grid; gap: 0.4cqw; }
 [data-layer] .hl figure { flex: var(--ar) 1 0; min-width: 0; }
-[data-layer] .hl img { width: 100%; aspect-ratio: var(--ar); display: block; }
-[data-layer] .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.6cqw; padding: 1.4cqw 3cqw 0; }
-[data-layer] .grid img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+[data-layer] :is(.hl, .grid) img { width: 100%; aspect-ratio: var(--ar); display: block; }
+[data-layer] .grid { display: grid; align-items: start; grid-template-columns: repeat(6, 1fr); gap: 0.6cqw; padding: 1.4cqw 3cqw 0; }
 [data-layer] .gl { padding: 1.6cqw 3cqw 0; }
 
 [data-layer] :is(h1.rt, .sub.rt) { left: auto; right: 3cqw; text-align: right; }
@@ -300,7 +299,6 @@ canvas.top {
   [data-layer] .set-h { flex-direction: column; align-items: flex-start; gap: 1cqw; padding: 0 var(--pad-x) 2.4cqw; }
   [data-layer] .hl { display: grid; gap: 1.6cqw; }
   [data-layer] .hl figure { flex: none; }
-  [data-layer] .hl img { max-height: 120cqw; object-fit: cover; }
   [data-layer] .hl figcaption { padding: 0 var(--pad-x); }
   [data-layer] .back { align-self: flex-start; }
   [data-layer] .grid { grid-template-columns: 1fr 1fr; gap: 1.6cqw; padding: 2.4cqw var(--pad-x) 0; }
