@@ -37,6 +37,8 @@ export type Engine = {
   readonly lastWipeMs: number;
 };
 
+/** A page wave whose route has not committed by then gives up and puts the old page back. */
+const NAV_STALL_MS = 10_000;
 const PHONE_MAX = 640, MAX_DPR = 2, ROW_ASPECT = 1.75, HERO_SAMPLES = 300, CURVE_SAMPLES = 800, H1_WEIGHT = 800;
 const GL_OPTS: WebGLContextAttributes = { premultipliedAlpha: true, antialias: false, preserveDrawingBuffer: process.env.NEXT_PUBLIC_E2E === "1" };
 const NO_SINK: GlyphSink = { push: () => {}, begin: () => {}, end: () => {}, destroy: () => {} };
@@ -278,7 +280,10 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
     if (!scene || !page) return;
     const themeDone = !!tw && now - tw.ts >= tw.dur;
     if (themeDone) finishTheme(now);
-    const done = !!wave && now - wave.t0 >= PAGE_MS;
+    // until the new page attaches, the wave holds with the old page cleared; a route that never commits gives up
+    const age = wave ? now - wave.t0 : 0, stalled = !!wave && !wave.to && age >= NAV_STALL_MS;
+    if (stalled) wave!.ghost.remove();
+    const done = !!wave && age >= PAGE_MS && (!!wave.to || stalled);
     if (done) finish(now);
     const wv = wave, s = scene, kn = knFor(s, page.id, page.layer), ls: FieldLayer[] = [], tf = themeFront(s, now);
     const fronts = tf === null ? [] : [tf];
@@ -379,7 +384,9 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
     layer.style.visibility = "";
     const to = prep(layer, viewport(), s.css);
     paint(to, () => 0);
-    wave = { ...wv, to };
+    // a route that committed after the wave ran out sweeps in over the already cleared field
+    const now = performance.now(), late = now - wv.t0 >= PAGE_MS;
+    wave = late ? { ...wv, to, t0: now, from: [], knFrom: null } : { ...wv, to };
     setPage(id, layer);
     return wv.done;
   };
