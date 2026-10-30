@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   // Node server). See ADR-0028.
   output: "export",
 
+  // Export `<route>/index.html`, so GitHub Pages answers `<route>/` and redirects
+  // `<route>` to it (with `<route>.html`, the slash URL 404s).
+  trailingSlash: true,
+
   // Drop the `X-Powered-By: Next.js` response header.
   poweredByHeader: false,
 

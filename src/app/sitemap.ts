@@ -9,7 +9,7 @@ export const dynamic = "force-static";
 /**
  * Generates `/sitemap.xml`. Case-study routes are derived from the project
  * index rather than listed by hand, so adding a project with `hasPage` adds
- * its entry here too.
+ * its entry here too. Paths end in `/` to match `trailingSlash` (no redirect hop).
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
@@ -22,7 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     ...["/projects", "/projects/all"].map((path) => ({
-      url: `${siteConfig.url}${path}`,
+      url: `${siteConfig.url}${path}/`,
       lastModified,
       changeFrequency: "monthly" as const,
       priority: 0.9,
@@ -30,26 +30,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...projects
       .filter((project) => project.hasPage)
       .map((project) => ({
-        url: `${siteConfig.url}/work/${project.slug}`,
+        url: `${siteConfig.url}/work/${project.slug}/`,
         lastModified,
         changeFrequency: "yearly" as const,
         priority: 0.8,
       })),
     {
       // The contact sheet changes when frames are printed, not on a schedule.
-      url: `${siteConfig.url}/photography`,
+      url: `${siteConfig.url}/photography/`,
       lastModified,
       changeFrequency: "monthly",
       priority: 0.6,
     },
     {
-      url: `${siteConfig.url}/blog`,
+      url: `${siteConfig.url}/blog/`,
       lastModified,
       changeFrequency: "weekly",
       priority: 0.6,
     },
     ...["/resume", "/contact"].map((path) => ({
-      url: `${siteConfig.url}${path}`,
+      url: `${siteConfig.url}${path}/`,
       lastModified,
       changeFrequency: "monthly" as const,
       priority: 0.7,
