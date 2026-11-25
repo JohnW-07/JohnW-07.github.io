@@ -13,8 +13,8 @@ This is a human-curated log — not a mirror of `git log`.
 - [My 3-car garage](/blog/my-three-car-garage/) is linked from the blog index.
   It includes eight credited photographs, article metadata, and a sitemap entry.
 - A racing-chevron wipe plays when opening or leaving a post. See [[decisions-log]].
-- The article masthead uses the live ASCII field. The chevrons run in the site
-  palette, and the article closes with thanks to the contributors.
+- The blog index uses the live ASCII field. The article uses the plain paper
+  background and closes with thanks to the contributors.
 
 ## 2026-10-14 — deployed as a static site on GitHub Pages
 

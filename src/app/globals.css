@@ -437,15 +437,6 @@ canvas.top {
   font-size: var(--post-caption);
 }
 
-.blog-post > section,
-.post-cover figcaption {
-  background: var(--paper);
-}
-
-.blog-post > section {
-  box-shadow: 0 0 0 var(--post-gap) var(--paper);
-}
-
 .post-prose {
   display: grid;
   gap: 1.1em;

@@ -19,9 +19,8 @@ consequences. Use [[templates/adr-note]] for new entries. Newest first.
   Keep each photograph’s source, photographer, and applicable license with its
   caption. The first article’s images were resized and encoded as WebP.
 - `/blog/[slug]` enumerates published entries with `generateStaticParams`.
-  The Stage keeps Blog selected on articles and on the index. Articles use the
-  animated ASCII field behind the masthead and a solid paper surface under the
-  prose.
+  The Stage keeps Blog selected on articles and on the index. The blog index
+  uses the animated ASCII field. Articles use the site’s plain paper background.
 - The Stage freezes the outgoing page and swaps it under a two-phase chevron
   wipe. The two phases take 1.1 seconds total and use the active site palette.
   The wipe reverses when leaving the article and is bypassed when reduced motion

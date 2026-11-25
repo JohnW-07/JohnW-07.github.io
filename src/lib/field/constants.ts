@@ -50,7 +50,6 @@ export const STAGES: Record<"desk" | "phone", StageSpec> = {
     ko: {
       home: ".bar > span, .chipl, .box, .edge",
       blog: ".bar > span" + FIELD_KO,
-      post: ".bar > span, .post-heading",
     },
   },
   phone: {
@@ -58,7 +57,6 @@ export const STAGES: Record<"desk" | "phone", StageSpec> = {
     ko: {
       home: PH_BAR + ", .chipl, .box, .edge",
       blog: PH_BAR + FIELD_KO,
-      post: ".bar .links > a, .bar > span:first-child, .bar .tg, .post-heading",
     },
   },
 };
