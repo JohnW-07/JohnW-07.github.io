@@ -37,7 +37,6 @@ const post = z.object({
     title: text,
     paragraphs: z.array(text).min(1),
     photos: z.array(photo),
-    source: citation.optional(),
   })),
   addendum: z.object({ title: text, paragraph: text, photo }),
   friends: z.object({

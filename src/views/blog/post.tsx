@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { WipeLink } from "@/components/stage/wipe-link";
 import { blogPosts, postImagePath, postPath, type BlogArticle, type BlogPhoto } from "@/data/blog-posts";
 import { siteConfig } from "@/lib/site";
 import { generateMetadata } from "@/utils/seo/generate-page-metadata";
@@ -54,8 +52,8 @@ function Photo({ post, photo, cover = false }: { post: BlogArticle; photo: BlogP
       <figcaption>
         <span>{photo.caption}</span>
         <span>
-          <a href={photo.source} rel="noopener">{photo.credit}</a>
-          {photo.license && <> · <a href={photo.license.url} rel="noopener">{photo.license.name}</a></>}
+          {photo.credit}
+          {photo.license && ` · ${photo.license.name}`}
         </span>
       </figcaption>
     </figure>
@@ -67,29 +65,29 @@ const formatDate = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZon
 export async function BlogPostView(props: PostPageProps) {
   const post = await findPost(props);
   const { intro, lineup, sections, addendum, friends } = post;
-  const jsonLd = getBlogPostStructuredData(post, postPath(post), postImagePath(post, post.cover));
+  const photos = [post.cover, ...sections.flatMap((section) => section.photos), addendum.photo];
+  const jsonLd = getBlogPostStructuredData(post, postPath(post), photos.map((photo) => ({
+    path: postImagePath(post, photo),
+    credit: photo.credit,
+    source: photo.source,
+    license: photo.license?.url,
+  })));
 
   return (
     <article className="blog-post" aria-labelledby="post-title">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <header className="post-header">
         <div className="post-heading">
-          <WipeLink className="post-back" href="/blog/">All posts</WipeLink>
           <p className="post-byline">{siteConfig.author} <span aria-hidden="true">/</span> <time dateTime={post.date}>{formatDate.format(new Date(post.date))}</time></p>
           <h1 id="post-title">{post.title}</h1>
-          <p className="post-deck">{post.summary}</p>
         </div>
         <Photo post={post} photo={post.cover} cover />
       </header>
 
-      <nav className="post-contents" aria-label="In this post">
-        <ul>{sections.map((section) => <li key={section.id}><Link href={`#${section.id}`}>{section.role}</Link></li>)}</ul>
-      </nav>
-
       <section className="post-prose" aria-labelledby="garage-rules">
         <h2 id="garage-rules">{intro.title}</h2>
         <p>{intro.setup}</p>
-        <blockquote>{intro.question}</blockquote>
+        <p>“{intro.question}”</p>
         {intro.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
         <dl className="post-roles">{intro.roles.map(({ name, description }) => (
           <div key={name}><dt>{name}</dt><dd>{description}</dd></div>
@@ -102,14 +100,13 @@ export async function BlogPostView(props: PostPageProps) {
           <h2 id="garage-lineup">{lineup.title}</h2>
           {lineup.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
         </header>
-        {sections.map(({ id, role, title, paragraphs: [first, ...rest], photos, source }) => (
+        {sections.map(({ id, role, title, paragraphs: [first, ...rest], photos }) => (
           <section className="post-chapter" key={id} id={id} aria-labelledby={`${id}-title`}>
             <header><p className="post-role">{role}</p><h3 id={`${id}-title`}>{title}</h3></header>
             <div className="post-prose"><p>{first}</p></div>
             <div className="post-photos">{photos.map((photo) => <Photo key={photo.file} post={post} photo={photo} />)}</div>
             <div className="post-prose">
               {rest.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-              {source && <p className="post-reference"><a href={source.url} rel="noopener">{source.name}</a></p>}
             </div>
           </section>
         ))}
@@ -126,8 +123,6 @@ export async function BlogPostView(props: PostPageProps) {
           <div key={name}><h3>{name}</h3><ol>{cars.map((car) => <li key={car}>{car}</li>)}</ol></div>
         ))}</div>
       </section>
-
-      <footer className="post-footer"><WipeLink className="post-back" href="/blog/">All posts</WipeLink></footer>
     </article>
   );
 }

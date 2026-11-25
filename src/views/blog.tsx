@@ -18,7 +18,6 @@ export const BlogView = () => (
               <span data-c="mute">{String(i + 1).padStart(2, "0")}</span>
               <time data-c="mute" dateTime={p.date}>{p.date}</time>
               <span className="t" data-c="mid">{p.title}</span>
-              <span data-c="mute">{p.summary}</span>
             </WipeLink>
           </li>
         ))}

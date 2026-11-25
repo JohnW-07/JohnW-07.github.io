@@ -1,5 +1,6 @@
 // Copied verbatim from docs/mockups/home/home-contact-r14.html — never retune.
 import { hex, type RGB } from "./math";
+import type { FieldPageId } from "./page-id";
 
 export const W = 1600, H = 1000, COLS = 240, HUES = 32;
 export const RAMP = " .,:;-~=+*xoa#%@", GLYPHS = "01<>/\\|_-=+*#%@", ALL = RAMP + GLYPHS;
@@ -38,7 +39,7 @@ export const THEMES: Theme[] = THEME_SRC.map((t) => ({
 export type StageSpec = {
   W: number; H?: number; COLS: number; ART?: [number, number];
   curve: string; below: string; hero: string; heroBelow: string;
-  ko: Record<"home" | "blog", string>;
+  ko: Record<FieldPageId, string>;
 };
 
 const PH_BAR = ".bar > span:first-child, .bar .links > button, .bar .tg", FIELD_KO = ", .sub, .idx li, .foot";
@@ -46,10 +47,18 @@ const PH_BAR = ".bar > span:first-child, .bar .links > button, .bar .tg", FIELD_
 export const STAGES: Record<"desk" | "phone", StageSpec> = {
   desk: {
     W, H, COLS, curve: CURVE, below: " L1700 1000 L-80 1000 Z", hero: HERO_CURVE, heroBelow: " L1660 980 L1660 -80 Z",
-    ko: { home: ".bar > span, .chipl, .box, .edge", blog: ".bar > span" + FIELD_KO },
+    ko: {
+      home: ".bar > span, .chipl, .box, .edge",
+      blog: ".bar > span" + FIELD_KO,
+      post: ".bar > span, .post-heading",
+    },
   },
   phone: {
     W: 600, COLS: 110, ART: [0.2, 0.74], curve: PH_CURVE, below: " L640 1360 L-40 1360 Z", hero: PH_HERO, heroBelow: " L680 1360 L680 -60 Z",
-    ko: { home: PH_BAR + ", .chipl, .box, .edge", blog: PH_BAR + FIELD_KO },
+    ko: {
+      home: PH_BAR + ", .chipl, .box, .edge",
+      blog: PH_BAR + FIELD_KO,
+      post: ".bar .links > a, .bar > span:first-child, .bar .tg, .post-heading",
+    },
   },
 };

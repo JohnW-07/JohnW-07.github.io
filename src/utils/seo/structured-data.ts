@@ -83,7 +83,7 @@ export function getResumeStructuredData() {
 export function getBlogPostStructuredData(
   post: { title: string; summary: string; date: string },
   path: string,
-  image: string,
+  photos: readonly { path: string; credit: string; source: string; license?: string }[],
 ) {
   const url = `${siteConfig.url}${path}`;
   return {
@@ -94,7 +94,13 @@ export function getBlogPostStructuredData(
     headline: post.title,
     description: post.summary,
     datePublished: post.date,
-    image: `${siteConfig.url}${image}`,
+    image: photos.map((photo) => ({
+      "@type": "ImageObject",
+      contentUrl: `${siteConfig.url}${photo.path}`,
+      creditText: photo.credit,
+      sameAs: photo.source,
+      license: photo.license,
+    })),
     author: { "@id": `${siteConfig.url}/#person` },
   };
 }

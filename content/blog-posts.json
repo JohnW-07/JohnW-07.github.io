@@ -3,15 +3,15 @@
     "slug": "my-three-car-garage",
     "title": "My 3-car garage",
     "date": "2026-11-25",
-    "summary": "A Civic for every day, an S2000 to build, and a JAS Tensei to keep.",
+    "summary": "John Wu’s three-car garage, featuring the 2026 Honda Civic Hybrid Hatchback, Honda S2000, and JAS Tensei.",
     "cover": {
-      "file": "s2000-track.webp",
+      "file": "s2000-touring.webp",
       "width": 1800,
-      "height": 1440,
-      "alt": "A silver Honda S2000 race car passing a red guardrail with autumn trees blurred behind it",
-      "caption": "A Honda S2000 racing in E Production",
+      "height": 1013,
+      "alt": "A black and white No. 93 Honda S2000 race car passing a trackside fence",
+      "caption": "No. 93 Honda S2000 racing in Touring 3",
       "credit": "Robert Yorde",
-      "source": "https://commons.wikimedia.org/wiki/File:-08,_2004_Honda_S2000,_E_Production,_Group_2_(52463454884).jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:2008_Honda_S2000_-93,_Touring_3_(Group_3)_(51440803563).jpg",
       "license": { "name": "CC BY 2.0", "url": "https://creativecommons.org/licenses/by/2.0/" }
     },
     "intro": {
@@ -60,8 +60,7 @@
             "caption": "Civic Hatchback on the road", "credit": "Honda News",
             "source": "https://hondanews.com/en-US/releases/release-4cdc9bbacd48a1cc5151c22e8602f984/photos/3"
           }
-        ],
-        "source": { "name": "Honda’s Civic Hatchback specifications", "url": "https://www.hondainfocenter.com/2026/civic-hatchback/feature-guide/civic-hatchback-specifications/" }
+        ]
       },
       {
         "id": "drivers-project",
@@ -90,8 +89,7 @@
             "source": "https://commons.wikimedia.org/wiki/File:Honda-S2000-JDM-F20C.JPG",
             "license": { "name": "CC BY 3.0", "url": "https://creativecommons.org/licenses/by/3.0/" }
           }
-        ],
-        "source": { "name": "Honda’s history of the S2000", "url": "https://global.honda/en/about/history-digest/75years-history/chapter2/section1_2/page2.html" }
+        ]
       },
       {
         "id": "specialty",
@@ -117,8 +115,7 @@
             "source": "https://commons.wikimedia.org/wiki/File:Honda_NSX_red.jpg",
             "license": { "name": "CC BY-SA 3.0", "url": "https://creativecommons.org/licenses/by-sa/3.0/" }
           }
-        ],
-        "source": { "name": "JAS Motorsport on the Tensei", "url": "https://jas-tensei.it/" }
+        ]
       }
     ],
     "addendum": {
@@ -133,7 +130,7 @@
       }
     },
     "friends": {
-      "title": "Two more garages",
+      "title": "Special thanks to friends who helped flesh out this blog post:",
       "lists": [
         { "name": "Aditya M.", "cars": ["Honda NSX", "McLaren Senna", "Volvo XC90"] },
         { "name": "Tajes S.", "cars": ["Daily · Porsche Taycan Cross Turismo", "Weekend · Singer DLS", "Track · BMW E46 M3"] }

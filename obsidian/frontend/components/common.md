@@ -174,8 +174,8 @@ async component must mirror its final layout with one of these
 
 ## Blog article
 
-- `BlogPostView` renders the static article, with its own photo and caption
-  markup, jump links, and return links. The page uses the shared `WipeLink`.
+- `BlogPostView` renders the static article and photo captions. The shared Blog
+  navigation returns to the index through the chevron wipe.
 - `raceWipe` runs the two-phase chevron animation around the Stage route swap
   and accepts an abort signal for interrupted history navigation. Its timing
   and colors live in `globals.css`.

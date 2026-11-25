@@ -322,8 +322,7 @@ canvas.top {
 
 /* ---- Blog article ------------------------------------------------------- */
 :root {
-  --post-accent: #a72632;
-  --post-ink: #201a23;
+  --post-accent: var(--acc);
   --post-border: color-mix(in srgb, var(--mid) 24%, transparent);
   --post-soft: color-mix(in srgb, var(--mid) 5%, var(--paper));
   --post-body: Georgia, Cambria, serif;
@@ -341,11 +340,6 @@ canvas.top {
   --post-tracking: 0.09em;
 }
 
-[data-theme="dark"] {
-  --post-accent: #ff9da2;
-  --post-ink: #22213b;
-}
-
 [data-layer] .idx .blog-index-link {
   align-items: baseline;
   line-height: 1.45;
@@ -353,11 +347,9 @@ canvas.top {
   white-space: normal;
 }
 
-[data-layer] .blog-index-link > :last-child { font-size: var(--post-label); }
-
 @media (min-width: 1100px) {
   [data-layer] .idx .blog-index-link {
-    grid-template-columns: 3ch 11ch minmax(12ch, 1fr) minmax(0, 1.5fr);
+    grid-template-columns: 3ch 11ch minmax(0, 1fr);
   }
 }
 
@@ -370,7 +362,7 @@ canvas.top {
   user-select: text;
 }
 
-.blog-post :where(figure, blockquote, ul, ol) { margin: 0; }
+.blog-post :where(figure, ol) { margin: 0; }
 .blog-post img { display: block; inline-size: 100%; }
 
 .post-header,
@@ -386,8 +378,6 @@ canvas.top {
   justify-items: start;
   gap: var(--post-gap);
 }
-
-[data-layer] .blog-post :is(a, h1) { white-space: normal; }
 
 [data-layer] .blog-post h1 {
   position: static;
@@ -406,7 +396,7 @@ canvas.top {
   text-wrap: balance;
 }
 
-[data-layer] .blog-post :is(.post-byline, .post-role, .post-reference) {
+[data-layer] .blog-post :is(.post-byline, .post-role) {
   font-family: var(--font-mono);
   font-size: var(--post-label);
 }
@@ -418,38 +408,18 @@ canvas.top {
   color: var(--post-accent);
 }
 
-[data-layer] .blog-post :is(.post-deck, .post-prose > p, .post-roles dd) {
+[data-layer] .blog-post :is(.post-prose > p, .post-roles dd) {
   font-family: var(--post-body);
   font-size: var(--post-text);
   line-height: 1.65;
 }
 
-.post-deck { max-inline-size: 28ch; }
-
-[data-layer] .blog-post :is(figcaption a, .post-reference a) {
-  text-decoration: underline;
-  text-underline-offset: 0.17em;
-}
-
-[data-layer] .blog-post .post-back {
-  color: var(--post-accent);
-  font-size: var(--post-label);
-  font-weight: 700;
-  border-block-end: var(--post-rule) solid currentColor;
-}
-
-.blog-post a:focus-visible,
 .blog-index-link:focus-visible {
   outline: var(--post-heavy-rule) solid var(--post-accent);
   outline-offset: var(--post-rule);
 }
 
-.post-cover img {
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  object-position: center 78%;
-  background: var(--post-ink);
-}
+.post-cover img { height: auto; }
 
 .post-photo img {
   aspect-ratio: 3 / 2;
@@ -467,21 +437,14 @@ canvas.top {
   font-size: var(--post-caption);
 }
 
-.post-contents {
-  margin-block-start: calc(-0.5 * var(--post-space));
-  border-block: var(--post-rule) solid var(--post-border);
+.blog-post > section,
+.post-cover figcaption {
+  background: var(--paper);
 }
 
-.post-contents ul {
-  display: flex;
-  flex-wrap: wrap;
-  padding: var(--post-label) 0;
-  gap: 0.5em var(--post-gap);
-  list-style: none;
-  font-size: var(--post-label);
+.blog-post > section {
+  box-shadow: 0 0 0 var(--post-gap) var(--paper);
 }
-
-[data-layer] .post-contents a { text-decoration: underline; text-underline-offset: 0.25em; }
 
 .post-prose {
   display: grid;
@@ -489,15 +452,6 @@ canvas.top {
   max-inline-size: var(--post-measure);
   margin-inline: auto;
   font-size: var(--post-text);
-}
-
-.blog-post blockquote {
-  font-family: var(--post-body);
-  font-size: var(--post-heading);
-  font-style: italic;
-  line-height: 1.12;
-  border-inline-start: var(--post-heavy-rule) solid var(--post-accent);
-  padding-inline-start: var(--post-gap);
 }
 
 .post-roles {
@@ -551,20 +505,18 @@ canvas.top {
 
 @media (max-width: 560px) {
   .post-photos, .post-friend-lists { grid-template-columns: minmax(0, 1fr); }
-  .post-cover img { aspect-ratio: 5 / 4; }
-  [data-layer] .idx .blog-index-link > :last-child { grid-area: 3 / 2 / 4 / 4; }
 }
 
 /* The post's chevrons advance in two phases around the route swap. */
 .race-wipe {
-  --race-phase-ms: 270;
+  --race-phase-ms: 550;
   --race-left: translateX(-120%);
   --race-right: translateX(120%);
   --race-center: translateX(0);
   --race-mirror: 1;
-  --race-stripe: #cf3444;
-  --race-panel: #241d29;
-  --race-highlight: #fff2e8;
+  --race-stripe: var(--acc);
+  --race-panel: var(--paper);
+  --race-highlight: var(--mute);
   display: none;
   position: fixed;
   z-index: 4;

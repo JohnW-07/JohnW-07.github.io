@@ -14,7 +14,7 @@ import { buildKnockout, type KnockoutGrid } from "./knockout";
 import { blur, toLum } from "./luminance";
 import { paint, prep, tint, type CellGrid, type Item } from "./masks";
 import { clamp, hash, smoothstep } from "./math";
-import { curveVisible, isFieldPage, zoneOf, type PageId } from "./page-id";
+import { curveVisible, isFieldPage, zoneOf, type FieldPageId, type PageId } from "./page-id";
 import { createThemeQueue, ZONE_THEMES, type Theme } from "./theme-queue";
 
 export type Engine = {
@@ -55,8 +55,8 @@ type Scene = {
   S_TH: Float32Array;
   S_BT: Float32Array;
   grid: KnockoutGrid;
-  ko: Record<"home" | "blog", string>;
-  kn: Map<PageId, Float32Array>;
+  ko: Record<FieldPageId, string>;
+  kn: Map<FieldPageId, Float32Array>;
   band: BandGrid;
   css: CellGrid;
   frontAt: (p: number) => number;
@@ -133,7 +133,7 @@ const viewKey = () => `${innerWidth}x${innerHeight}@${Math.min(MAX_DPR, devicePi
 
 /**
  * The ASCII photo field on `canvas.fld` (R14 engine, M:298–467): WebGL2 when
- * available, 2D otherwise. Field pages (home, blog) draw the hero loop through
+ * available, 2D otherwise. Field pages draw the hero loop through
  * the shared ticker; it leaves the ticker while the tab is hidden, and under
  * reduced motion holds one static frame.
  */
@@ -179,7 +179,7 @@ export const createEngine = (root: HTMLElement, opts: { reducedMotion: boolean }
   const knFor = (s: Scene, id: PageId, layer: HTMLElement) => {
     if (!isFieldPage(id)) return null;
     let kn = s.kn.get(id);
-    if (!kn) s.kn.set(id, (kn = buildKnockout(layer, s.ko[id as "home" | "blog"], s.grid, blur)));
+    if (!kn) s.kn.set(id, (kn = buildKnockout(layer, s.ko[id], s.grid, blur)));
     return kn;
   };
 
