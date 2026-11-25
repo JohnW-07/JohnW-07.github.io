@@ -10,6 +10,7 @@ import { curveVisible, pageIdFor, zoneOf } from "@/lib/field/page-id";
 import { ZONE_THEMES, type Theme } from "@/lib/field/theme-queue";
 
 import { NavBar } from "./nav-bar";
+import { raceWipe } from "./race-wipe";
 
 const RESIZE_MS = 150;
 
@@ -43,6 +44,8 @@ export const Stage = ({ children }: { children: ReactNode }) => {
   const layerRef = useRef<HTMLElement>(null);
   const engineRef = useRef<Engine | null>(null);
   const ghostRef = useRef<HTMLDivElement>(null);
+  const raceRef = useRef<HTMLDivElement>(null);
+  const stopRaceRef = useRef<(() => void) | null>(null);
   const pathRef = useRef(pathname);
   const reducedRef = useRef(false);
   /** The ghost copy waiting for the next route commit, the running wave's token, and the click queued behind it. */
@@ -80,6 +83,7 @@ export const Stage = ({ children }: { children: ReactNode }) => {
     // capture: runs before the router's own popstate handler re-renders the route
     const onPop = () => {
       if (reducedRef.current || samePath(location.pathname, pathRef.current)) return;
+      stopRaceRef.current?.();
       engine.settle();
       queuedRef.current = null;
       freeze();
@@ -87,6 +91,7 @@ export const Stage = ({ children }: { children: ReactNode }) => {
     addEventListener("resize", onResize);
     addEventListener("popstate", onPop, true);
     return () => {
+      stopRaceRef.current?.();
       clearTimeout(timer);
       removeEventListener("resize", onResize);
       removeEventListener("popstate", onPop, true);
@@ -97,11 +102,14 @@ export const Stage = ({ children }: { children: ReactNode }) => {
 
   const go = useCallback(
     (href: string) => {
-      if (samePath(new URL(href, location.href).pathname, pathRef.current)) return;
+      const nextPath = new URL(href, location.href).pathname;
+      if (samePath(nextPath, pathRef.current)) return;
       if (wipingRef.current) { queuedRef.current = href; return; }
       if (!reducedRef.current) freeze();
       // the band starts on the click, a few frames before the route commits
-      if (pendingRef.current) engineRef.current?.launch(pendingRef.current);
+      if (pendingRef.current && pageIdFor(nextPath) !== "post" && pageIdFor(pathRef.current) !== "post") {
+        engineRef.current?.launch(pendingRef.current);
+      }
       router.push(href, { scroll: !pendingRef.current });
     },
     [router, freeze],
@@ -109,22 +117,51 @@ export const Stage = ({ children }: { children: ReactNode }) => {
 
   // keyed on the path, not the page id: case → case is a new page with the same id
   useLayoutEffect(() => {
+    const previous = pageIdFor(pathRef.current);
     pathRef.current = pathname;
     const layer = layerRef.current, engine = engineRef.current, ghost = pendingRef.current;
     pendingRef.current = null;
     if (!layer || !engine) return;
     if (!ghost) { engine.setPage(id, layer); setTheme(engine.want); return; }
-    scrollTo(0, 0);
     const token = ++waveRef.current;
     wipingRef.current = true;
-    void engine.wipe(ghost, layer, id).then(() => {
+    const finish = () => {
       ghost.remove();
       if (token !== waveRef.current) return;
       wipingRef.current = false;
       const next = queuedRef.current;
       queuedRef.current = null;
       if (next) go(next);
-    });
+    };
+    const overlay = raceRef.current;
+    if (overlay && (previous === "post" || id === "post")) {
+      const controller = new AbortController();
+      layer.style.visibility = "hidden";
+      stopRaceRef.current = () => {
+        ++waveRef.current;
+        controller.abort();
+        layer.style.visibility = "";
+        ghost.remove();
+        wipingRef.current = false;
+        stopRaceRef.current = null;
+      };
+      void raceWipe(overlay, previous === "post", controller.signal, () => {
+        layer.style.visibility = "";
+        ghost.remove();
+        const anchor = id === "post" && document.getElementById(location.hash.slice(1));
+        if (anchor) anchor.scrollIntoView();
+        else scrollTo(0, 0);
+        engine.setPage(id, layer);
+        setTheme(engine.want);
+      }).then(() => {
+        if (controller.signal.aborted) return;
+        stopRaceRef.current = null;
+        finish();
+      });
+      return;
+    }
+    scrollTo(0, 0);
+    void engine.wipe(ghost, layer, id).then(finish);
     setTheme(engine.want);
   }, [pathname, id, go]);
   const toggleTheme = useCallback(() => {
@@ -162,6 +199,7 @@ export const Stage = ({ children }: { children: ReactNode }) => {
         </main>
       </div>
       <canvas className="top" aria-hidden />
+      <div className="race-wipe" ref={raceRef} aria-hidden><span /></div>
     </StageContext.Provider>
   );
 };

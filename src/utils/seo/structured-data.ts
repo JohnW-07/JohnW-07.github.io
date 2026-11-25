@@ -80,6 +80,25 @@ export function getResumeStructuredData() {
   };
 }
 
+export function getBlogPostStructuredData(
+  post: { title: string; summary: string; date: string },
+  path: string,
+  image: string,
+) {
+  const url = `${siteConfig.url}${path}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": `${url}#post`,
+    mainEntityOfPage: url,
+    headline: post.title,
+    description: post.summary,
+    datePublished: post.date,
+    image: `${siteConfig.url}${image}`,
+    author: { "@id": `${siteConfig.url}/#person` },
+  };
+}
+
 /** `/photography`: every published frame, credited to the root `Person`. */
 export function getGalleryStructuredData(images: readonly { src: string; alt: string }[]) {
   return {

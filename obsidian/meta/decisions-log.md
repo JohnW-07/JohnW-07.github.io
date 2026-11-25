@@ -10,6 +10,23 @@ consequences. Use [[templates/adr-note]] for new entries. Newest first.
 
 ---
 
+## ADR-0035 — Static blog articles and racing transitions
+
+- **Status:** Accepted, 2026-11-25.
+- Blog articles live in `content/blog-posts.json`. The server-side reader validates
+  the records and shares them with the index, static route, and sitemap. Add an
+  entry with a unique slug and place its WebP files in `public/assets/blog/<slug>/`.
+  Keep each photograph’s source, photographer, and applicable license with its
+  caption. The first article’s images were resized and encoded as WebP.
+- `/blog/[slug]` enumerates published entries with `generateStaticParams`.
+  The Stage identifies posts separately from the animated blog index and keeps
+  Blog selected in the navigation on both.
+- The Stage freezes the outgoing page and swaps it under a two-phase chevron
+  wipe. The wipe reverses when leaving the article and is bypassed when reduced
+  motion is requested. The field wave continues to handle other navigation.
+
+---
+
 ## ADR-0028 — Static export, hosted on GitHub Pages
 
 - **Status:** Accepted, 2026-10-14.

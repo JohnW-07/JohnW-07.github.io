@@ -40,6 +40,8 @@ see [[component-conventions]] hard rule #6.
 | `/work/armtopoint` | `src/app/work/armtopoint/page.tsx` | `views/work/armtopoint.tsx` |
 | `/work/cherry-canary` | `src/app/work/cherry-canary/page.tsx` | `views/work/cherry-canary.tsx` |
 | `/photography` | `src/app/photography/page.tsx` | `views/photography.tsx` → `PhotographyView` |
+| `/blog` | `src/app/blog/page.tsx` | `views/blog.tsx` → `BlogView` |
+| `/blog/[slug]` | `src/app/blog/[slug]/page.tsx` | `views/blog/post.tsx` → `BlogPostView` |
 
 > [!note] Why five routes instead of one `[slug]`
 > Each case study is a tailored layout, not a template filled in. A dynamic route
@@ -98,6 +100,10 @@ import { useRouter } from 'next/navigation';
 > Earlier drafts of `generic-layout-prompt.md` referenced `<AnimLink>` /
 > `useAnimRouter()`. Those were never built and the convention is dropped — use
 > `next/link` directly.
+
+Published blog post slugs are enumerated at build time. The Stage uses the
+racing-chevron wipe for navigation into and out of articles, including back and
+forward. See ADR-0035 in [[decisions-log]].
 
 ## SEO per route
 

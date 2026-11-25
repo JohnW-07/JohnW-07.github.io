@@ -1,0 +1,143 @@
+[
+  {
+    "slug": "my-three-car-garage",
+    "title": "My 3-car garage",
+    "date": "2026-11-25",
+    "summary": "A Civic for every day, an S2000 to build, and a JAS Tensei to keep.",
+    "cover": {
+      "file": "s2000-track.webp",
+      "width": 1800,
+      "height": 1440,
+      "alt": "A silver Honda S2000 race car passing a red guardrail with autumn trees blurred behind it",
+      "caption": "A Honda S2000 racing in E Production",
+      "credit": "Robert Yorde",
+      "source": "https://commons.wikimedia.org/wiki/File:-08,_2004_Honda_S2000,_E_Production,_Group_2_(52463454884).jpg",
+      "license": { "name": "CC BY 2.0", "url": "https://creativecommons.org/licenses/by/2.0/" }
+    },
+    "intro": {
+      "title": "For those who aren’t familiar",
+      "setup": "The 3-car garage is a popular hypothetical discussion among car enthusiasts.",
+      "question": "If you could own any cars, but only three, which would you choose?",
+      "paragraphs": [
+        "The challenge is building your perfect collection with just three vehicles, balancing practicality, driving enjoyment, personality, and sometimes investment value. I’m leaving investment value aside for now.",
+        "It’s less about picking the three “best” cars and more about choosing the three you personally desire most, that complement each other and fill distinct roles with minimal overlap. The classic variation has three roles."
+      ],
+      "roles": [
+        { "name": "The driver’s car", "description": "A pure passion project. This can take whatever form you want, whether it’s a stock car you reserve for weekend track days or a project car you tear down and build back up." },
+        { "name": "The daily driver", "description": "A comfortable and practical vehicle you can trust to get you from A to B. Bonus points if it can still be fun." },
+        { "name": "The dream or specialty car", "description": "Something exceptional to complete the collection. A supercar, vintage collectible, off-roader, track-only machine, or whatever you’re into." }
+      ],
+      "rules": "My only hard rule is three cars. The categories are flexible and there’s no budget limit. An old Chevy is just as defensible as a Ferrari as long as there’s passion and a reason."
+    },
+    "lineup": {
+      "title": "My three",
+      "paragraphs": [
+        "Honda has a long reputation for making bulletproof daily drivers. Most people know them for the Civic, Odyssey, Pilot, and other SUVs. For enthusiasts, Honda is also the company that made its reputation through legendary lightweight momentum cars, motorcycles that won international competitions, and reliable F1 power units.",
+        "I admire Honda for its rich history, its engineering philosophy, the design aesthetics it follows, and its acknowledgment of the enthusiasts who follow the company. I may be biased in picking three cars with Honda roots, but each choice is well justified in its own right."
+      ]
+    },
+    "sections": [
+      {
+        "id": "daily",
+        "role": "Daily driver",
+        "title": "2026 Honda Civic Hybrid Hatchback",
+        "paragraphs": [
+          "The 2026 Honda Civic Hybrid Hatchback is hard to beat by just about every daily-driver metric. Honda wanted this to be the only car the average person really ever needs in the small-car segment, and they did it well.",
+          "The hybrid powertrain produces an impressive 200 horsepower and 232 lb-ft of torque while returning an EPA-estimated 48 mpg combined. That puts it among the more powerful offerings in the mainstream compact segment while keeping it above the line in fuel economy. The electric motor also delivers immediate low-end response, making the Civic feel surprisingly lively in everyday traffic.",
+          "Owners describe the steering as go-kart-like, with minimal body roll and a firm but still compliant suspension. That’s the balance I want between everyday comfort and confidence in corners.",
+          "Admittedly, it’s a rather uninteresting car, but that’s the point. It appeals to the widest possible audience while maintaining a bit of kick, almost as a nod to Honda’s heritage. That makes it my perfect daily driver."
+        ],
+        "photos": [
+          {
+            "file": "civic.webp", "width": 928, "height": 622,
+            "alt": "Blue Honda Civic Sport Touring Hybrid hatchback parked on a rooftop",
+            "caption": "Sport Touring Hybrid", "credit": "Honda News",
+            "source": "https://hondanews.com/en-US/honda-automobiles/releases/release-00b08be100b45a4ab9ae5793dd0e0680/photos/0"
+          },
+          {
+            "file": "civic-extra.webp", "width": 928, "height": 619,
+            "alt": "Blue Honda Civic Hatchback driving along a winding road",
+            "caption": "Civic Hatchback on the road", "credit": "Honda News",
+            "source": "https://hondanews.com/en-US/releases/release-4cdc9bbacd48a1cc5151c22e8602f984/photos/3"
+          }
+        ],
+        "source": { "name": "Honda’s Civic Hatchback specifications", "url": "https://www.hondainfocenter.com/2026/civic-hatchback/feature-guide/civic-hatchback-specifications/" }
+      },
+      {
+        "id": "drivers-project",
+        "role": "Driver’s project",
+        "title": "Honda S2000",
+        "paragraphs": [
+          "Introduced in 1999 to celebrate Honda’s 50th anniversary, the S2000 is one of the purest expressions of Honda’s performance philosophy. Its lightweight chassis, near-perfect weight distribution (very hard to come by these days), six-speed manual, and naturally aspirated F20C four-cylinder capable of revving to 9,000 rpm made it an instant enthusiast icon.",
+          "Part of me really wants to keep a stock S2000 and preserve it in the image its designers envisioned, especially given that a stock one will only become rarer as time goes on.",
+          "Given the chance, I’d take a different approach. My ideal build would be a track-focused S2000 I could still drive on the street, tuning everything that made the original so special without giving up reliability or losing sight of the original engineering. So I’d keep the original engine, even if an LS swap would probably make the car faster overall.",
+          "I’d keep that high-revving, naturally aspirated four-cylinder and add individual throttle bodies for sharper throttle response and a more aggressive induction sound. I’d skip forced induction because the immediate response is part of what I love about the S2000.",
+          "Visually, I’d keep the original look but adopt a lower, slightly more aggressive stance with functional aero and a subtle widebody. Adjustable coilovers, track geometry, lightweight wheels, and wide, sticky tires would complete the setup.",
+          "The goal is responsiveness, handling, and the satisfaction of extracting everything from a lightweight, high-revving machine. In other words, a very expensive go-kart."
+        ],
+        "photos": [
+          {
+            "file": "s2000.webp", "width": 1280, "height": 894,
+            "alt": "Front three-quarter view of an AP1 Honda S2000 roadster",
+            "caption": "The original AP1 bodywork", "credit": "Tokumeigakarinoaoshima",
+            "source": "https://commons.wikimedia.org/wiki/File:Honda_S2000_(AP1)_front.JPG",
+            "license": { "name": "CC0 1.0", "url": "https://creativecommons.org/publicdomain/zero/1.0/" }
+          },
+          {
+            "file": "s2000-engine.webp", "width": 1280, "height": 960,
+            "alt": "Honda F20C engine bay with a red VTEC valve cover",
+            "caption": "The F20C four-cylinder", "credit": "Pws",
+            "source": "https://commons.wikimedia.org/wiki/File:Honda-S2000-JDM-F20C.JPG",
+            "license": { "name": "CC BY 3.0", "url": "https://creativecommons.org/licenses/by/3.0/" }
+          }
+        ],
+        "source": { "name": "Honda’s history of the S2000", "url": "https://global.honda/en/about/history-digest/75years-history/chapter2/section1_2/page2.html" }
+      },
+      {
+        "id": "specialty",
+        "role": "Specialty car",
+        "title": "JAS Tensei",
+        "paragraphs": [
+          "When Honda introduced the original NSX in 1990, it challenged the notion that an exotic supercar had to be temperamental or difficult to live with. Developed with input from Ayrton Senna, a three-time F1 world champion, the mid-engine, all-aluminum NSX combined everyday usability with the performance and engineering of the exotics of the time. It quickly became one of Japan’s most celebrated sports cars.",
+          "The JAS Tensei is a modern reinterpretation of that original NSX, developed by JAS Motorsport in collaboration with Italian design house Pininfarina. Built around a first-generation NSX platform, it combines a bespoke carbon-fiber body, motorsport-derived engineering, a naturally aspirated V6, and a six-speed manual. The result is a highly modernized NSX that updates the original’s design and performance while preserving its analog character.",
+          "This would be my immaculate keeper car. I wouldn’t change a thing about it. I’d keep the bodywork and mechanicals as close to the original specification as possible, and I’d hope to keep it for life."
+        ],
+        "photos": [
+          {
+            "file": "tensei.webp", "width": 1280, "height": 960,
+            "alt": "Blue JAS Tensei seen from behind at Auto Zürich 2026",
+            "caption": "JAS Tensei at Auto Zürich", "credit": "Matti Blume",
+            "source": "https://commons.wikimedia.org/wiki/File:JAS_Tensei,_Auto_2026,_Zurich_(20261105-P1110047).jpg",
+            "license": { "name": "CC BY-SA 4.0", "url": "https://creativecommons.org/licenses/by-sa/4.0/" }
+          },
+          {
+            "file": "nsx.webp", "width": 1280, "height": 629,
+            "alt": "Red first-generation Honda NSX with its pop-up headlights closed",
+            "caption": "The first-generation NSX", "credit": "ed g2s",
+            "source": "https://commons.wikimedia.org/wiki/File:Honda_NSX_red.jpg",
+            "license": { "name": "CC BY-SA 3.0", "url": "https://creativecommons.org/licenses/by-sa/3.0/" }
+          }
+        ],
+        "source": { "name": "JAS Motorsport on the Tensei", "url": "https://jas-tensei.it/" }
+      }
+    ],
+    "addendum": {
+      "title": "If I had room for one",
+      "paragraph": "In the real world, I’d like to maintain a single vehicle that serves all three purposes, likely a Honda Civic Type R (FL5) or Acura Integra Type S. Either would give me a practical hatchback with a manual I’d actually look forward to driving.",
+      "photo": {
+        "file": "type-r.webp", "width": 1280, "height": 960,
+        "alt": "Gray FL5 Honda Civic Type R with a red Honda badge and a hood vent",
+        "caption": "Honda Civic Type R (FL5)", "credit": "Tokumeigakarinoaoshima",
+        "source": "https://commons.wikimedia.org/wiki/File:Honda_CIVIC_TYPE_R_(6BA-FL5)_front.jpg",
+        "license": { "name": "CC BY-SA 4.0", "url": "https://creativecommons.org/licenses/by-sa/4.0/" }
+      }
+    },
+    "friends": {
+      "title": "Two more garages",
+      "lists": [
+        { "name": "Aditya M.", "cars": ["Honda NSX", "McLaren Senna", "Volvo XC90"] },
+        { "name": "Tajes S.", "cars": ["Daily · Porsche Taycan Cross Turismo", "Weekend · Singer DLS", "Track · BMW E46 M3"] }
+      ]
+    }
+  }
+]

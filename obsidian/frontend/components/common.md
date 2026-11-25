@@ -171,3 +171,11 @@ async component must mirror its final layout with one of these
 ## Related
 
 [[component-conventions]] · [[components/animation-springs]]
+
+## Blog article
+
+- `BlogPostView` renders the static article, with its own photo and caption
+  markup, jump links, and return links. The page uses the shared `WipeLink`.
+- `raceWipe` runs the two-phase chevron animation around the Stage route swap
+  and accepts an abort signal for interrupted history navigation. Its timing
+  and colors live in `globals.css`.

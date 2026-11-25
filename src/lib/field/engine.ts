@@ -14,7 +14,7 @@ import { buildKnockout, type KnockoutGrid } from "./knockout";
 import { blur, toLum } from "./luminance";
 import { paint, prep, tint, type CellGrid, type Item } from "./masks";
 import { clamp, hash, smoothstep } from "./math";
-import { isFieldPage, zoneOf, type PageId } from "./page-id";
+import { curveVisible, isFieldPage, zoneOf, type PageId } from "./page-id";
 import { createThemeQueue, ZONE_THEMES, type Theme } from "./theme-queue";
 
 export type Engine = {
@@ -73,7 +73,7 @@ type Wave = {
 type ThemeWave = { ts: number; dur: number };
 
 /** Curve opacity per page: hidden on field pages and the all-projects index. */
-const lineVis = (id: PageId) => (isFieldPage(id) || id === "all" ? 0 : 1);
+const lineVis = (id: PageId) => (curveVisible(id) ? 1 : 0);
 
 /** Q (signed distance across the curve) and G (its gradient) per cell (M:315–322). */
 const curveField = (curve: string, below: string, cols: number, rows: number, ux: number, uy: number) => {

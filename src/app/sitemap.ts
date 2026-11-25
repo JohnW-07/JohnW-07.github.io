@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 
+import { blogPosts, postPath } from "@/data/blog-posts";
 import { projects } from "@/data/projects";
 import { siteConfig } from "@/lib/site";
 
@@ -48,6 +49,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.6,
     },
+    ...blogPosts.map((post) => ({
+      url: `${siteConfig.url}${postPath(post)}`,
+      lastModified: post.date,
+    })),
     ...["/resume", "/contact"].map((path) => ({
       url: `${siteConfig.url}${path}/`,
       lastModified,

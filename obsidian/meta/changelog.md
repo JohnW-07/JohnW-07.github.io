@@ -8,6 +8,12 @@ updated: 2026-10-14
 Chronological log of notable changes to the project. Newest first.
 This is a human-curated log — not a mirror of `git log`.
 
+## 2026-11-25 — first blog post
+
+- [My 3-car garage](/blog/my-three-car-garage/) is linked from the blog index.
+  It includes eight credited photographs, article metadata, and a sitemap entry.
+- A racing-chevron wipe plays when opening or leaving a post. See [[decisions-log]].
+
 ## 2026-10-14 — deployed as a static site on GitHub Pages
 
 - `next.config.ts`: `output: "export"`, `images.unoptimized: true`.
